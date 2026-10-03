@@ -1,0 +1,216 @@
+{
+  "type": "FeatureCollection",
+  "name": "marrakech_3d_landmarks",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Koutoubia Minaret - Main Tower",
+        "category": "heritage_monument",
+        "height": 69,
+        "base_height": 0,
+        "color": "#ba6f54",
+        "description": "Iconic 12th-century Almohad minaret tower, the architectural symbol of Marrakech."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-7.99395, 31.62415],
+          [-7.99325, 31.62415],
+          [-7.99325, 31.62355],
+          [-7.99395, 31.62355],
+          [-7.99395, 31.62415]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Koutoubia Minaret - Lantern Gallery",
+        "category": "heritage_monument",
+        "height": 77,
+        "base_height": 69,
+        "color": "#d97706",
+        "description": "Upper prayer lantern and spire holding the 3 gilded copper globes."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-7.99380, 31.62402],
+          [-7.99340, 31.62402],
+          [-7.99340, 31.62368],
+          [-7.99380, 31.62368],
+          [-7.99380, 31.62402]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Koutoubia Mosque - Prayer Hall",
+        "category": "heritage_monument",
+        "height": 14,
+        "base_height": 0,
+        "color": "#9a3412",
+        "description": "Extensive hypostyle prayer hall with 112 columns."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-7.99450, 31.62450],
+          [-7.99280, 31.62450],
+          [-7.99280, 31.62310],
+          [-7.99450, 31.62310],
+          [-7.99450, 31.62450]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Menara Pavilion - Base",
+        "category": "heritage_monument",
+        "height": 8,
+        "base_height": 0,
+        "color": "#c2410c",
+        "description": "Historic Saadian pleasure pavilion on the edge of the royal olive groves."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.02130, 31.61320],
+          [-8.02070, 31.61320],
+          [-8.02070, 31.61270],
+          [-8.02130, 31.61270],
+          [-8.02130, 31.61320]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Menara Pavilion - Pyramidal Green Roof",
+        "category": "heritage_monument",
+        "height": 16,
+        "base_height": 8,
+        "color": "#15803d",
+        "description": "Glazed green Moroccan terracotta tiles (Qarmoud)."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.02120, 31.61312],
+          [-8.02080, 31.61312],
+          [-8.02080, 31.61278],
+          [-8.02120, 31.61278],
+          [-8.02120, 31.61312]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gare de Marrakech - Main Grand Hall",
+        "category": "modern_landmark",
+        "height": 22,
+        "base_height": 0,
+        "color": "#334155",
+        "description": "Monumental train station combining neo-Moorish arches and modern glass facades."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.01890, 31.63090],
+          [-8.01770, 31.63090],
+          [-8.01770, 31.62990],
+          [-8.01890, 31.62990],
+          [-8.01890, 31.63090]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Gare de Marrakech - Illuminated Rotunda",
+        "category": "modern_landmark",
+        "height": 28,
+        "base_height": 22,
+        "color": "#38bdf8",
+        "description": "Glass-and-steel central rotunda."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.01850, 31.63060],
+          [-8.01800, 31.63060],
+          [-8.01800, 31.63020],
+          [-8.01850, 31.63020],
+          [-8.01850, 31.63060]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Carre Eden Complex - Shopping Mall",
+        "category": "commercial_hub",
+        "height": 18,
+        "base_height": 0,
+        "color": "#1e293b",
+        "description": "Modern urban shopping, dining, and hotel complex in the heart of Gueliz."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.00980, 31.63480],
+          [-8.00840, 31.63480],
+          [-8.00840, 31.63340],
+          [-8.00980, 31.63340],
+          [-8.00980, 31.63480]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Carre Eden - Hotel & Residential Towers",
+        "category": "commercial_hub",
+        "height": 34,
+        "base_height": 18,
+        "color": "#64748b",
+        "description": "Radisson Blu modern hotel tower at Carre Eden."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.00950, 31.63450],
+          [-8.00870, 31.63450],
+          [-8.00870, 31.63370],
+          [-8.00950, 31.63370],
+          [-8.00950, 31.63450]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Palais des Congres Marrakech",
+        "category": "modern_landmark",
+        "height": 24,
+        "base_height": 0,
+        "color": "#78350f",
+        "description": "International convention center on Boulevard Mohammed VI in Hivernage."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-8.01650, 31.62180],
+          [-8.01500, 31.62180],
+          [-8.01500, 31.62050],
+          [-8.01650, 31.62050],
+          [-8.01650, 31.62180]
+        ]]
+      }
+    }
+  ]
+}

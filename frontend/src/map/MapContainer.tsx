@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapMode } from '../types';
-import { RotateCcw, Layers, ZoomIn, ZoomOut, Compass } from 'lucide-react';
+import { RotateCcw, Compass, Sun, Moon, Globe, Map as MapIcon } from 'lucide-react';
 
 interface MapContainerProps {
   propertiesGeoJSON: any;
@@ -14,8 +14,35 @@ interface MapContainerProps {
   onSelectNeighborhood?: (neighborhoodId: string) => void;
 }
 
-const MAP_STYLES = {
+// Basemap Styles with Satellite 3D and Vector options
+const MAP_STYLES: Record<string, any> = {
   dark: 'https://tiles.openfreemap.org/styles/dark',
+  satellite: {
+    version: 8,
+    sources: {
+      'esri-satellite': {
+        type: 'raster',
+        tiles: [
+          'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+        ],
+        tileSize: 256,
+        attribution: '&copy; Esri, Maxar, Earthstar Geographics'
+      },
+      'openmaptiles': {
+        type: 'vector',
+        url: 'https://tiles.openfreemap.org/planet'
+      }
+    },
+    layers: [
+      {
+        id: 'esri-satellite-layer',
+        type: 'raster',
+        source: 'esri-satellite',
+        minzoom: 0,
+        maxzoom: 19
+      }
+    ]
+  },
   liberty: 'https://tiles.openfreemap.org/styles/liberty',
   bright: 'https://tiles.openfreemap.org/styles/bright',
 };
@@ -54,7 +81,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
-  const [activeStyle, setActiveStyle] = useState<'dark' | 'liberty' | 'bright'>('dark');
+  const [activeStyle, setActiveStyle] = useState<'dark' | 'satellite' | 'liberty' | 'bright'>('dark');
   const [styleLoaded, setStyleLoaded] = useState(false);
 
   // Initialize Map
@@ -65,10 +92,11 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       container: mapContainerRef.current,
       style: MAP_STYLES[activeStyle],
       center: [-8.0125, 31.6346], // Marrakech center (Gueliz)
-      zoom: 12.8,
-      pitch: 45, // 3D Camera Tilt
-      bearing: -15,
+      zoom: 13.2,
+      pitch: 52, // Cinematic 3D Camera Tilt
+      bearing: -18,
       antialias: true,
+      maxPitch: 75,
     });
 
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
@@ -76,10 +104,11 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     popupRef.current = new maplibregl.Popup({
       closeButton: false,
       closeOnClick: false,
-      offset: 12,
+      offset: 14,
     });
 
     map.on('style.load', () => {
+      setupLightingAndAtmosphere(map);
       setupLayers(map);
       setStyleLoaded(true);
     });
@@ -92,20 +121,34 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   }, []);
 
   // Handle Style Switcher
-  const handleStyleChange = (styleKey: 'dark' | 'liberty' | 'bright') => {
+  const handleStyleChange = (styleKey: 'dark' | 'satellite' | 'liberty' | 'bright') => {
     if (!mapRef.current || styleKey === activeStyle) return;
     setActiveStyle(styleKey);
     setStyleLoaded(false);
     mapRef.current.setStyle(MAP_STYLES[styleKey]);
   };
 
+  // Configure Realistic 3D Directional Lighting & Sun Shadows
+  const setupLightingAndAtmosphere = (map: maplibregl.Map) => {
+    try {
+      // Warm Moroccan Golden Hour directional sunlight
+      map.setLight({
+        anchor: 'viewport',
+        color: activeStyle === 'dark' ? '#fed7aa' : '#ffffff',
+        intensity: activeStyle === 'dark' ? 0.6 : 0.45,
+        position: [1.35, 75, 42] // [radial coordinate, azimuthal angle, polar angle]
+      });
+    } catch (err) {
+      console.warn('Map lighting setup error:', err);
+    }
+  };
+
   // Configure All Spatial Layers
   const setupLayers = (map: maplibregl.Map) => {
     // -------------------------------------------------------------------------
-    // 1. 3D Buildings Layer from Vector Tiles (OpenMapTiles source)
+    // 1. Realistic 3D Buildings Layer from Vector Tiles (OpenMapTiles source)
     // -------------------------------------------------------------------------
     if (map.getSource('openmaptiles') && !map.getLayer('3d-buildings')) {
-      // Find label layer to place buildings below text labels
       const layers = map.getStyle().layers || [];
       let labelLayerId: string | undefined;
       for (const layer of layers) {
@@ -122,31 +165,67 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             source: 'openmaptiles',
             'source-layer': 'building',
             type: 'fill-extrusion',
-            minzoom: 13.5,
+            minzoom: 13,
             paint: {
-              'fill-extrusion-color': activeStyle === 'dark' ? '#1e293b' : '#cbd5e1',
+              // Facade shading with height gradient: taller buildings get modern tinted slate
+              'fill-extrusion-color': activeStyle === 'satellite'
+                ? 'rgba(255, 255, 255, 0.28)'
+                : activeStyle === 'dark'
+                ? [
+                    'interpolate',
+                    ['linear'],
+                    ['coalesce', ['get', 'render_height'], ['get', 'height'], 12],
+                    6, '#182234',
+                    15, '#1e293b',
+                    25, '#293548',
+                    40, '#334155',
+                    60, '#38bdf8'
+                  ]
+                : '#cbd5e1',
               'fill-extrusion-height': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
-                13.5,
-                0,
-                15.5,
-                ['coalesce', ['get', 'render_height'], ['get', 'height'], 14]
+                13, 0,
+                15.5, ['coalesce', ['get', 'render_height'], ['get', 'height'], 14]
               ],
               'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
-              'fill-extrusion-opacity': 0.65,
+              'fill-extrusion-opacity': activeStyle === 'satellite' ? 0.45 : 0.88,
             },
           },
           labelLayerId
         );
       } catch (err) {
-        console.warn('Vector 3D buildings not supported on this style:', err);
+        console.warn('Vector 3D buildings layer not supported on this style:', err);
       }
     }
 
     // -------------------------------------------------------------------------
-    // 2. Neighborhoods GeoJSON Source & Layers
+    // 2. Iconic 3D Architectural Landmarks Layer (Koutoubia, Menara, Gare, Carre Eden)
+    // -------------------------------------------------------------------------
+    if (!map.getSource('landmarks-3d')) {
+      map.addSource('landmarks-3d', {
+        type: 'geojson',
+        data: '/marrakech_3d_landmarks.geojson',
+      });
+    }
+
+    if (!map.getLayer('landmarks-3d-layer')) {
+      map.addLayer({
+        id: 'landmarks-3d-layer',
+        type: 'fill-extrusion',
+        source: 'landmarks-3d',
+        paint: {
+          'fill-extrusion-color': ['get', 'color'],
+          'fill-extrusion-height': ['get', 'height'],
+          'fill-extrusion-base': ['get', 'base_height'],
+          'fill-extrusion-opacity': 0.95,
+        },
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Neighborhoods GeoJSON Source & Layers
     // -------------------------------------------------------------------------
     if (!map.getSource('neighborhoods-data')) {
       map.addSource('neighborhoods-data', {
@@ -164,7 +243,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         paint: {
           'line-color': '#38bdf8',
           'line-width': 1.5,
-          'line-opacity': 0.5,
+          'line-opacity': 0.6,
           'line-dasharray': [2, 1],
         },
       });
@@ -181,19 +260,19 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           'text-size': 11,
           'text-font': ['Open Sans Semibold', 'Arial Unicode MS Bold'],
           'text-transform': 'uppercase',
-          'text-letter-spacing': 0.1,
+          'text-letter-spacing': 0.12,
           'text-anchor': 'center',
           'text-allow-overlap': false,
         },
         paint: {
-          'text-color': '#94a3b8',
+          'text-color': activeStyle === 'satellite' ? '#ffffff' : '#94a3b8',
           'text-halo-color': '#0f172a',
-          'text-halo-width': 1.5,
+          'text-halo-width': 2,
         },
       });
     }
 
-    // C. Neighborhood 3D Extrusions (HIDDEN by default, visible only in Mode 4 & 5)
+    // C. Neighborhood 3D Extrusions (Visible ONLY in Mode 4 & Mode 5)
     if (!map.getLayer('neighborhoods-3d-extrusions')) {
       map.addLayer({
         id: 'neighborhoods-3d-extrusions',
@@ -225,7 +304,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
 
     // -------------------------------------------------------------------------
-    // 3. Properties GeoJSON Source & Layers
+    // 4. Properties GeoJSON Source & Layers
     // -------------------------------------------------------------------------
     if (!map.getSource('properties-data')) {
       map.addSource('properties-data', {
@@ -233,7 +312,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         data: propertiesGeoJSON || { type: 'FeatureCollection', features: [] },
         cluster: true,
         clusterMaxZoom: 14,
-        clusterRadius: 40,
+        clusterRadius: 42,
       });
     }
 
@@ -256,7 +335,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             '#f59e0b', 150,
             '#ef4444'
           ],
-          'circle-opacity': 0.9,
+          'circle-opacity': 0.92,
         },
       });
     }
@@ -296,9 +375,9 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             22000, '#f59e0b',
             32000, '#ef4444'
           ],
-          'circle-radius': 5.5,
-          'circle-stroke-width': 1.5,
-          'circle-stroke-color': '#0f172a',
+          'circle-radius': 6,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff',
           'circle-opacity': 0.95,
         },
       });
@@ -323,7 +402,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             'Above model estimate', '#ef4444',
             '#94a3b8'
           ],
-          'circle-radius': 6.5,
+          'circle-radius': 7,
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff',
           'circle-opacity': 0.95,
@@ -361,8 +440,31 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
 
     // -------------------------------------------------------------------------
-    // 4. Interactive Event Handlers
+    // 5. Interactive Event Handlers
     // -------------------------------------------------------------------------
+    // Landmark Hover Tooltip
+    map.on('mouseenter', 'landmarks-3d-layer', (e) => {
+      map.getCanvas().style.cursor = 'pointer';
+      if (!e.features || !e.features[0] || !popupRef.current) return;
+      const f = e.features[0];
+      const p = f.properties;
+
+      const html = `
+        <div style="font-family: sans-serif; padding: 6px 8px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 150px; border: 1px solid #334155;">
+          <div style="font-weight: 700; color: #f59e0b; font-size: 12px; margin-bottom: 2px;">🏛️ ${p.name}</div>
+          <div style="color: #cbd5e1; font-size: 10px; line-height: 1.4;">${p.description}</div>
+          <div style="color: #38bdf8; font-size: 10px; margin-top: 4px; font-family: monospace;">Elevation: ${p.height}m</div>
+        </div>
+      `;
+
+      popupRef.current.setLngLat(e.lngLat).setHTML(html).addTo(map);
+    });
+
+    map.on('mouseleave', 'landmarks-3d-layer', () => {
+      map.getCanvas().style.cursor = '';
+      if (popupRef.current) popupRef.current.remove();
+    });
+
     // Property Pin Click
     const handlePropClick = (e: any) => {
       if (!e.features || !e.features[0]) return;
@@ -373,7 +475,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       map.flyTo({
         center: (feat.geometry as any).coordinates,
         zoom: 15.5,
-        pitch: 55,
+        pitch: 58,
         speed: 1.2,
       });
     };
@@ -404,7 +506,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       const p = f.properties;
 
       const html = `
-        <div style="font-family: sans-serif; padding: 6px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 140px;">
+        <div style="font-family: sans-serif; padding: 6px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 140px; border: 1px solid #334155;">
           <div style="font-weight: 700; color: #38bdf8; margin-bottom: 2px;">${p.property_type ? p.property_type.toUpperCase() : 'PROPERTY'}</div>
           <div style="font-size: 13px; font-weight: 700;">${(p.price || 0).toLocaleString()} MAD</div>
           <div style="color: #94a3b8; font-size: 10px; margin-top: 2px;">
@@ -434,7 +536,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       const p = f.properties;
 
       const html = `
-        <div style="font-family: sans-serif; padding: 8px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 160px;">
+        <div style="font-family: sans-serif; padding: 8px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 160px; border: 1px solid #334155;">
           <div style="font-weight: 700; color: #38bdf8; font-size: 13px;">${p.name}</div>
           <div style="color: #cbd5e1; margin-top: 4px;">Median Price/m²: <strong style="color: #10b981;">${(p.median_price_per_m2 || p.median_price_m2 || 0).toLocaleString()} MAD</strong></div>
           <div style="color: #cbd5e1; margin-top: 2px;">Active Listings: <strong style="color: #38bdf8;">${p.active_listings_count || 0} units</strong></div>
@@ -470,6 +572,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('neighborhoods-3d-extrusions', false);
       setVis('neighborhoods-outline', true);
       setVis('neighborhoods-labels', true);
+      setVis('landmarks-3d-layer', true);
     } else if (mode === 'heatmap') {
       setVis('properties-heatmap', true);
       setVis('unclustered-points', false);
@@ -479,6 +582,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('neighborhoods-3d-extrusions', false);
       setVis('neighborhoods-outline', true);
       setVis('neighborhoods-labels', true);
+      setVis('landmarks-3d-layer', false);
     } else if (mode === 'density') {
       setVis('clusters-layer', true);
       setVis('cluster-count-labels', true);
@@ -488,6 +592,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('neighborhoods-3d-extrusions', false);
       setVis('neighborhoods-outline', true);
       setVis('neighborhoods-labels', true);
+      setVis('landmarks-3d-layer', true);
     } else if (mode === 'neighborhood') {
       setVis('neighborhoods-3d-extrusions', true);
       setVis('unclustered-points', true);
@@ -497,6 +602,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('value-gap-points', false);
       setVis('neighborhoods-outline', false);
       setVis('neighborhoods-labels', true);
+      setVis('landmarks-3d-layer', true);
       if (map.getLayer('neighborhoods-3d-extrusions')) {
         map.setPaintProperty('neighborhoods-3d-extrusions', 'fill-extrusion-height', [
           'coalesce',
@@ -513,6 +619,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('value-gap-points', false);
       setVis('neighborhoods-outline', false);
       setVis('neighborhoods-labels', true);
+      setVis('landmarks-3d-layer', true);
       if (map.getLayer('neighborhoods-3d-extrusions')) {
         map.setPaintProperty('neighborhoods-3d-extrusions', 'fill-extrusion-height', [
           'coalesce',
@@ -529,6 +636,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('neighborhoods-3d-extrusions', false);
       setVis('neighborhoods-outline', true);
       setVis('neighborhoods-labels', true);
+      setVis('landmarks-3d-layer', true);
     }
   };
 
@@ -556,9 +664,9 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     if (mapRef.current) {
       mapRef.current.flyTo({
         center: [-8.0125, 31.6346],
-        zoom: 12.8,
-        pitch: 45,
-        bearing: -15,
+        zoom: 13.2,
+        pitch: 52,
+        bearing: -18,
         speed: 1.2,
       });
     }
@@ -568,7 +676,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     if (mapRef.current) {
       const currentPitch = mapRef.current.getPitch();
       mapRef.current.easeTo({
-        pitch: currentPitch > 20 ? 0 : 55,
+        pitch: currentPitch > 25 ? 0 : 58,
         duration: 800,
       });
     }
@@ -643,26 +751,38 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
           }}
         >
-          {(['dark', 'liberty', 'bright'] as const).map((styleKey) => (
-            <button
-              key={styleKey}
-              onClick={() => handleStyleChange(styleKey)}
-              style={{
-                backgroundColor: activeStyle === styleKey ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
-                color: activeStyle === styleKey ? '#38bdf8' : '#94a3b8',
-                border: activeStyle === styleKey ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
-                borderRadius: '4px',
-                padding: '5px 10px',
-                fontSize: '11px',
-                fontWeight: activeStyle === styleKey ? 700 : 500,
-                cursor: 'pointer',
-                textTransform: 'capitalize',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {styleKey}
-            </button>
-          ))}
+          {[
+            { id: 'dark', label: 'Dark', icon: Moon },
+            { id: 'satellite', label: 'Satellite 3D', icon: Globe },
+            { id: 'liberty', label: 'Streets', icon: MapIcon },
+            { id: 'bright', label: 'Light', icon: Sun },
+          ].map((style) => {
+            const Icon = style.icon;
+            const isSelected = activeStyle === style.id;
+            return (
+              <button
+                key={style.id}
+                onClick={() => handleStyleChange(style.id as any)}
+                style={{
+                  backgroundColor: isSelected ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
+                  color: isSelected ? '#38bdf8' : '#94a3b8',
+                  border: isSelected ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
+                  borderRadius: '4px',
+                  padding: '5px 10px',
+                  fontSize: '11px',
+                  fontWeight: isSelected ? 700 : 500,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  transition: 'all 0.15s ease',
+                }}
+              >
+                <Icon size={12} />
+                <span>{style.label}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
