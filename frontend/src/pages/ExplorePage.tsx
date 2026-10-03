@@ -123,6 +123,12 @@ export const ExplorePage: React.FC<ExplorePageProps> = ({ initialNeighborhood })
           selectedPropertyId={selectedProperty ? selectedProperty.property_id : null}
           onSelectProperty={handleSelectProperty}
           onSelectBuilding={handleSelectBuilding}
+          activeFilter={{
+            neighborhood: filters.neighborhood,
+            property_type: filters.property_type,
+            max_price: filters.max_price,
+            totalMatches: totalMatches,
+          }}
         />
 
         {/* Empty State Banner if 0 results match active filters */}

@@ -13,7 +13,30 @@ interface MapContainerProps {
   onSelectProperty: (propertyId: string | null) => void;
   onSelectNeighborhood?: (neighborhoodId: string) => void;
   onSelectBuilding?: (buildingData: { title: string; neighborhood: string; properties: any[] }) => void;
+  activeFilter?: {
+    neighborhood?: string;
+    property_type?: string;
+    max_price?: number;
+    totalMatches?: number;
+  };
 }
+
+// 13 Official Administrative District Centers in Marrakech for Camera Fly-To
+const NEIGHBORHOOD_CENTERS: Record<string, { center: [number, number]; zoom: number }> = {
+  gueliz: { center: [-8.0125, 31.6346], zoom: 14.5 },
+  hivernage: { center: [-8.0160, 31.6210], zoom: 14.5 },
+  medina: { center: [-7.9890, 31.6270], zoom: 14.2 },
+  palmeraie: { center: [-7.9600, 31.6700], zoom: 13.0 },
+  agdal: { center: [-7.9875, 31.6000], zoom: 14.0 },
+  targa: { center: [-8.0550, 31.6500], zoom: 14.0 },
+  menara: { center: [-8.0250, 31.6150], zoom: 14.2 },
+  semlalia: { center: [-8.0200, 31.6450], zoom: 14.5 },
+  massira: { center: [-8.0500, 31.6300], zoom: 14.0 },
+  daoudiate: { center: [-7.9950, 31.6550], zoom: 14.2 },
+  mhamid: { center: [-8.0400, 31.5950], zoom: 13.8 },
+  ennakhil: { center: [-7.9500, 31.6400], zoom: 13.5 },
+  'sidi youssef ben ali': { center: [-7.9700, 31.6050], zoom: 14.0 },
+};
 
 // Basemap Styles with Satellite 3D and Vector options
 const MAP_STYLES: Record<string, any> = {
@@ -94,12 +117,24 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   onSelectProperty,
   onSelectNeighborhood,
   onSelectBuilding,
+  activeFilter,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const [activeStyle, setActiveStyle] = useState<'dark' | 'satellite' | 'liberty' | 'bright'>('dark');
   const [styleLoaded, setStyleLoaded] = useState(false);
+
+  // Keep live references to prevent stale closures during async tile loading
+  const propertiesGeoJSONRef = useRef(propertiesGeoJSON);
+  useEffect(() => {
+    propertiesGeoJSONRef.current = propertiesGeoJSON;
+  }, [propertiesGeoJSON]);
+
+  const neighborhoodsGeoJSONRef = useRef(neighborhoodsGeoJSON);
+  useEffect(() => {
+    neighborhoodsGeoJSONRef.current = neighborhoodsGeoJSON;
+  }, [neighborhoodsGeoJSON]);
 
   // Initialize Map
   useEffect(() => {
@@ -128,6 +163,20 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setupLightingAndAtmosphere(map);
       setupLayers(map);
       setStyleLoaded(true);
+
+      // Immediately sync latest data in case it arrived before style finished loading
+      try {
+        const propSource = map.getSource('properties-data');
+        if (propSource && propertiesGeoJSONRef.current) {
+          (propSource as any).setData(propertiesGeoJSONRef.current);
+        }
+        const neighSource = map.getSource('neighborhoods-data');
+        if (neighSource && neighborhoodsGeoJSONRef.current) {
+          (neighSource as any).setData(neighborhoodsGeoJSONRef.current);
+        }
+      } catch (err) {
+        console.warn('Error syncing data on style load:', err);
+      }
     });
 
     mapRef.current = map;
@@ -342,7 +391,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     if (!map.getSource('properties-data')) {
       map.addSource('properties-data', {
         type: 'geojson',
-        data: propertiesGeoJSON || { type: 'FeatureCollection', features: [] },
+        data: propertiesGeoJSONRef.current || { type: 'FeatureCollection', features: [] },
         cluster: true,
         clusterMaxZoom: 13,
         clusterRadius: 36,
@@ -391,7 +440,39 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       });
     }
 
-    // C. Individual Property Pins (Unclustered Explorer Mode)
+    // C1. Outer Glow Halo for Unclustered Points (Visible through 3D buildings)
+    if (!map.getLayer('unclustered-points-glow')) {
+      map.addLayer({
+        id: 'unclustered-points-glow',
+        type: 'circle',
+        source: 'properties-data',
+        filter: ['!', ['has', 'point_count']],
+        paint: {
+          'circle-color': [
+            'match',
+            ['get', 'property_type'],
+            'Apartment', '#38bdf8',
+            'Villa', '#10b981',
+            'Riad', '#f59e0b',
+            'Duplex', '#ec4899',
+            'Commercial', '#a855f7',
+            '#38bdf8'
+          ],
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            12, 10,
+            14, 15,
+            16, 22
+          ],
+          'circle-opacity': 0.4,
+          'circle-blur': 0.5,
+        },
+      });
+    }
+
+    // C2. Individual Property Pins (Color-coded by Typology with crisp white ring)
     if (!map.getLayer('unclustered-points')) {
       map.addLayer({
         id: 'unclustered-points',
@@ -400,18 +481,26 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-color': [
+            'match',
+            ['get', 'property_type'],
+            'Apartment', '#0284c7',
+            'Villa', '#059669',
+            'Riad', '#d97706',
+            'Duplex', '#db2777',
+            'Commercial', '#7c3aed',
+            '#0284c7'
+          ],
+          'circle-radius': [
             'interpolate',
             ['linear'],
-            ['get', 'price_per_m2'],
-            7000, '#38bdf8',
-            14000, '#10b981',
-            22000, '#f59e0b',
-            32000, '#ef4444',
+            ['zoom'],
+            12, 5.5,
+            14, 8,
+            16, 11
           ],
-          'circle-radius': 6.5,
-          'circle-stroke-width': 2,
+          'circle-stroke-width': 2.5,
           'circle-stroke-color': '#ffffff',
-          'circle-opacity': 0.95,
+          'circle-opacity': 0.98,
         },
       });
     }
@@ -737,6 +826,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
     if (mode === 'explorer') {
       setVis('unclustered-points', true);
+      setVis('unclustered-points-glow', true);
       setVis('clusters-layer', true);
       setVis('cluster-count-labels', true);
       setVis('value-gap-points', false);
@@ -748,6 +838,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     } else if (mode === 'heatmap') {
       setVis('properties-heatmap', true);
       setVis('unclustered-points', false);
+      setVis('unclustered-points-glow', false);
       setVis('clusters-layer', false);
       setVis('cluster-count-labels', false);
       setVis('value-gap-points', false);
@@ -759,6 +850,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       setVis('clusters-layer', true);
       setVis('cluster-count-labels', true);
       setVis('unclustered-points', true);
+      setVis('unclustered-points-glow', true);
       setVis('properties-heatmap', false);
       setVis('value-gap-points', false);
       setVis('neighborhoods-3d-extrusions', false);
@@ -768,6 +860,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     } else if (mode === 'neighborhood') {
       setVis('neighborhoods-3d-extrusions', true);
       setVis('unclustered-points', true);
+      setVis('unclustered-points-glow', true);
       setVis('clusters-layer', false);
       setVis('cluster-count-labels', false);
       setVis('properties-heatmap', false);
@@ -785,6 +878,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     } else if (mode === 'activity') {
       setVis('neighborhoods-3d-extrusions', true);
       setVis('unclustered-points', false);
+      setVis('unclustered-points-glow', false);
       setVis('clusters-layer', false);
       setVis('cluster-count-labels', false);
       setVis('properties-heatmap', false);
@@ -802,6 +896,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     } else if (mode === 'value_gap') {
       setVis('value-gap-points', true);
       setVis('unclustered-points', false);
+      setVis('unclustered-points-glow', false);
       setVis('clusters-layer', false);
       setVis('cluster-count-labels', false);
       setVis('properties-heatmap', false);
@@ -812,23 +907,85 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
   };
 
-  // Update Data Sources when Props Change
+  // Safe Update Data Sources when Props or Style Changes
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
+    if (!map.isStyleLoaded()) return;
 
-    if (map.getSource('properties-data') && propertiesGeoJSON) {
-      (map.getSource('properties-data') as any).setData(propertiesGeoJSON);
+    try {
+      const propSource = map.getSource('properties-data');
+      if (propSource && propertiesGeoJSON) {
+        (propSource as any).setData(propertiesGeoJSON);
+      }
+      const neighSource = map.getSource('neighborhoods-data');
+      if (neighSource && neighborhoodsGeoJSON) {
+        (neighSource as any).setData(neighborhoodsGeoJSON);
+      }
+    } catch (err) {
+      console.warn('Error updating map data sources:', err);
     }
-    if (map.getSource('neighborhoods-data') && neighborhoodsGeoJSON) {
-      (map.getSource('neighborhoods-data') as any).setData(neighborhoodsGeoJSON);
+  }, [propertiesGeoJSON, neighborhoodsGeoJSON, styleLoaded]);
+
+  // Fit camera bounds to matching property features
+  const fitToFeatures = (features: any[]) => {
+    if (!mapRef.current || !features || features.length === 0) return;
+    const map = mapRef.current;
+
+    const bounds = new maplibregl.LngLatBounds();
+    features.forEach((f: any) => {
+      const coords = f.geometry?.coordinates;
+      if (coords && coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+        bounds.extend(coords as [number, number]);
+      }
+    });
+
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, {
+        padding: { top: 70, bottom: 70, left: 340, right: 70 },
+        maxZoom: 15,
+        pitch: 52,
+        duration: 1100,
+      });
     }
-  }, [propertiesGeoJSON, neighborhoodsGeoJSON]);
+  };
+
+  // Auto-focus Camera when Filters Change
+  const isInitialMount = useRef(true);
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    // 1. If a specific neighborhood is chosen, fly directly to that neighborhood
+    if (activeFilter?.neighborhood && activeFilter.neighborhood.toLowerCase() !== 'all') {
+      const target = NEIGHBORHOOD_CENTERS[activeFilter.neighborhood.toLowerCase()];
+      if (target) {
+        map.flyTo({
+          center: target.center,
+          zoom: target.zoom,
+          pitch: 54,
+          speed: 1.2,
+          curve: 1.4,
+        });
+        return;
+      }
+    }
+
+    // 2. Otherwise smoothly frame the filtered properties on the map
+    if (propertiesGeoJSON?.features && propertiesGeoJSON.features.length > 0) {
+      fitToFeatures(propertiesGeoJSON.features);
+    }
+  }, [activeFilter?.neighborhood, activeFilter?.property_type, activeFilter?.max_price]);
 
   // Update Selected Property 3D Visual Highlight
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current;
+    if (!map.isStyleLoaded()) return;
 
     if (!map.getSource('selected-property-source')) return;
 
@@ -884,6 +1041,58 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
+
+      {/* Floating Active Filter HUD Pill */}
+      {activeFilter && (activeFilter.property_type !== 'all' || (activeFilter.neighborhood && activeFilter.neighborhood !== 'all') || (activeFilter.max_price && activeFilter.max_price < 20000000)) && (
+        <div style={{
+          position: 'absolute',
+          top: '16px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          backgroundColor: 'rgba(15, 23, 42, 0.9)',
+          border: '1px solid #38bdf8',
+          borderRadius: '24px',
+          padding: '6px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          zIndex: 10,
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 8px 25px rgba(0, 0, 0, 0.5)',
+        }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#38bdf8', boxShadow: '0 0 10px #38bdf8' }} />
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#f8fafc' }}>
+            {activeFilter.property_type && activeFilter.property_type !== 'all'
+              ? activeFilter.property_type.charAt(0).toUpperCase() + activeFilter.property_type.slice(1) + 's'
+              : 'Properties'}
+            {activeFilter.neighborhood && activeFilter.neighborhood !== 'all' ? ` in ${activeFilter.neighborhood}` : ' in Marrakech'}
+          </span>
+          <span style={{ fontSize: '11px', color: '#38bdf8', backgroundColor: '#1e293b', padding: '2px 8px', borderRadius: '12px', fontWeight: 700 }}>
+            {activeFilter.totalMatches ?? (propertiesGeoJSON?.features?.length || 0)} found
+          </span>
+          <button
+            onClick={() => {
+              if (propertiesGeoJSON?.features) fitToFeatures(propertiesGeoJSON.features);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              backgroundColor: '#2563eb',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '4px 8px',
+              fontSize: '11px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+            title="Focus map to all matching properties"
+          >
+            <Compass size={12} /> Focus
+          </button>
+        </div>
+      )}
 
       {/* Floating Bottom Left Controls: Camera & Style */}
       <div

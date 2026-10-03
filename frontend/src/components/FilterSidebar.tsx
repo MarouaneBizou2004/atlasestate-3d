@@ -287,7 +287,10 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
             return (
               <button
                 key={pt}
-                onClick={() => setFilters((prev: any) => ({ ...prev, property_type: pt.toLowerCase() }))}
+                onClick={() => setFilters((prev: any) => ({
+                  ...prev,
+                  property_type: isSelected && pt.toLowerCase() !== 'all' ? 'all' : pt.toLowerCase()
+                }))}
                 style={{
                   padding: '6px 0',
                   borderRadius: '4px',
