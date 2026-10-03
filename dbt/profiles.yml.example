@@ -1,0 +1,21 @@
+atlasestate:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost
+      user: atlas_admin
+      password: atlas_secret_pw
+      port: 5432
+      dbname: atlasestate_db
+      schema: public
+      threads: 4
+    prod:
+      type: postgres
+      host: "{{ env_var('POSTGRES_HOST', 'localhost') }}"
+      user: "{{ env_var('POSTGRES_USER', 'atlas_admin') }}"
+      password: "{{ env_var('POSTGRES_PASSWORD', 'atlas_secret_pw') }}"
+      port: 5432
+      dbname: "{{ env_var('POSTGRES_DB', 'atlasestate_db') }}"
+      schema: public
+      threads: 8

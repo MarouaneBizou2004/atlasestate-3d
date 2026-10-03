@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atlasestate-3d"
+version = "1.0.0"
+description = "3D Geospatial Real Estate Intelligence Platform for Morocco"
+readme = "README.md"
+authors = [{ name = "Marouane Bizou", email = "marouanebizou@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "sqlalchemy>=2.0.28",
+    "pydantic>=2.6.0",
+    "shapely>=2.0.3",
+    "scikit-learn>=1.4.1",
+    "pandas>=2.2.1",
+    "numpy>=1.26.4"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::UserWarning"
+]

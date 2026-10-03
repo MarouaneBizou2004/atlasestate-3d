@@ -1,0 +1,452 @@
+{
+  "type": "FeatureCollection",
+  "name": "marrakech_pois",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "poi_001",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9891,
+          31.6258
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_001",
+        "name": "Jemaa el-Fnaa Plaza",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 1.0,
+        "longitude": -7.9891,
+        "latitude": 31.6258
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_002",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0033,
+          31.6418
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_002",
+        "name": "Jardin Majorelle",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 0.95,
+        "longitude": -8.0033,
+        "latitude": 31.6418
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_003",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9829,
+          31.6217
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_003",
+        "name": "Bahia Palace",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 0.9,
+        "longitude": -7.9829,
+        "latitude": 31.6217
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_004",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9936,
+          31.6238
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_004",
+        "name": "Koutoubia Mosque",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 0.95,
+        "longitude": -7.9936,
+        "latitude": 31.6238
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_005",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9859,
+          31.6183
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_005",
+        "name": "El Badi Palace",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -7.9859,
+        "latitude": 31.6183
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_006",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0215,
+          31.6133
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_006",
+        "name": "Menara Gardens Basin",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 0.9,
+        "longitude": -8.0215,
+        "latitude": 31.6133
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_007",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9889,
+          31.6172
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_007",
+        "name": "Saadian Tombs",
+        "category": "attraction",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -7.9889,
+        "latitude": 31.6172
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_008",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0363,
+          31.6069
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_008",
+        "name": "Marrakech Menara Airport (RAK)",
+        "category": "transport",
+        "city": "Marrakech",
+        "importance": 1.0,
+        "longitude": -8.0363,
+        "latitude": 31.6069
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_009",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0177,
+          31.6301
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_009",
+        "name": "Gare de Marrakech (Train Station)",
+        "category": "transport",
+        "city": "Marrakech",
+        "importance": 0.95,
+        "longitude": -8.0177,
+        "latitude": 31.6301
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_010",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.019,
+          31.6315
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_010",
+        "name": "CTM Bus Terminal Gueliz",
+        "category": "transport",
+        "city": "Marrakech",
+        "importance": 0.8,
+        "longitude": -8.019,
+        "latitude": 31.6315
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_011",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.9995,
+          31.6352
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_011",
+        "name": "Bab Doukkala Bus Station",
+        "category": "transport",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -7.9995,
+        "latitude": 31.6352
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_012",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0125,
+          31.661
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_012",
+        "name": "CHU Mohammed VI Marrakech",
+        "category": "hospital",
+        "city": "Marrakech",
+        "importance": 0.95,
+        "longitude": -8.0125,
+        "latitude": 31.661
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_013",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0195,
+          31.6215
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_013",
+        "name": "Clinique Internationale de Marrakech",
+        "category": "hospital",
+        "city": "Marrakech",
+        "importance": 0.9,
+        "longitude": -8.0195,
+        "latitude": 31.6215
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_014",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.009,
+          31.623
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_014",
+        "name": "Hopital Militaire Avicenne",
+        "category": "hospital",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -8.009,
+        "latitude": 31.623
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_015",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.011,
+          31.6385
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_015",
+        "name": "Clinique Du Sud",
+        "category": "hospital",
+        "city": "Marrakech",
+        "importance": 0.8,
+        "longitude": -8.011,
+        "latitude": 31.6385
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_016",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.018,
+          31.654
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_016",
+        "name": "Universite Cadi Ayyad",
+        "category": "school",
+        "city": "Marrakech",
+        "importance": 0.9,
+        "longitude": -8.018,
+        "latitude": 31.654
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_017",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.021,
+          31.6445
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_017",
+        "name": "Lycee Victor Hugo",
+        "category": "school",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -8.021,
+        "latitude": 31.6445
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_018",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.932,
+          31.675
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_018",
+        "name": "American School of Marrakech",
+        "category": "school",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -7.932,
+        "latitude": 31.675
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_019",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0135,
+          31.66
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_019",
+        "name": "Faculte de Medecine de Marrakech",
+        "category": "school",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -8.0135,
+        "latitude": 31.66
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_020",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0095,
+          31.636
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_020",
+        "name": "Carre Eden Shopping Center",
+        "category": "shopping",
+        "city": "Marrakech",
+        "importance": 0.9,
+        "longitude": -8.0095,
+        "latitude": 31.636
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_021",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -8.0135,
+          31.62
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_021",
+        "name": "Menara Mall",
+        "category": "shopping",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -8.0135,
+        "latitude": 31.62
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "poi_022",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -7.982,
+          31.595
+        ]
+      },
+      "properties": {
+        "poi_id": "poi_022",
+        "name": "Al Mazar Mall",
+        "category": "shopping",
+        "city": "Marrakech",
+        "importance": 0.85,
+        "longitude": -7.982,
+        "latitude": 31.595
+      }
+    }
+  ]
+}

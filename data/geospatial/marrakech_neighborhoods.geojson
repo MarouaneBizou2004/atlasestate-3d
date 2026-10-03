@@ -1,0 +1,558 @@
+{
+  "type": "FeatureCollection",
+  "name": "marrakech_neighborhoods",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:OGC:1.3:CRS84"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "gueliz",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.022,
+              31.642
+            ],
+            [
+              -8.005,
+              31.642
+            ],
+            [
+              -8.003,
+              31.628
+            ],
+            [
+              -8.018,
+              31.626
+            ],
+            [
+              -8.022,
+              31.642
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "gueliz",
+        "name": "Gueliz",
+        "name_ar": "كليز",
+        "city": "Marrakech",
+        "zone_type": "commercial_residential",
+        "description": "Modern downtown center established during the protectorate, featuring wide boulevards, cafes, art galleries, and modern residential apartments.",
+        "price_per_m2_min": 14000,
+        "price_per_m2_max": 22000,
+        "median_price_m2": 18000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "hivernage",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.024,
+              31.626
+            ],
+            [
+              -8.008,
+              31.626
+            ],
+            [
+              -8.006,
+              31.616
+            ],
+            [
+              -8.025,
+              31.615
+            ],
+            [
+              -8.024,
+              31.626
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "hivernage",
+        "name": "Hivernage",
+        "name_ar": "الحي الشتوي",
+        "city": "Marrakech",
+        "zone_type": "luxury_residential",
+        "description": "Upscale diplomatic and tourist district known for luxury boutique hotels, private residences, and lush parks.",
+        "price_per_m2_min": 18000,
+        "price_per_m2_max": 28000,
+        "median_price_m2": 23000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "medina",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.001,
+              31.637
+            ],
+            [
+              -7.978,
+              31.636
+            ],
+            [
+              -7.974,
+              31.618
+            ],
+            [
+              -7.998,
+              31.617
+            ],
+            [
+              -8.001,
+              31.637
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "medina",
+        "name": "Medina",
+        "name_ar": "المدينة العتيقة",
+        "city": "Marrakech",
+        "zone_type": "historical_heritage",
+        "description": "Historic UNESCO World Heritage site, famous for traditional architectural Riads, bustling souks, and cultural landmarks.",
+        "price_per_m2_min": 16000,
+        "price_per_m2_max": 32000,
+        "median_price_m2": 24000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "palmeraie",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -7.985,
+              31.69
+            ],
+            [
+              -7.94,
+              31.685
+            ],
+            [
+              -7.935,
+              31.65
+            ],
+            [
+              -7.98,
+              31.655
+            ],
+            [
+              -7.985,
+              31.69
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "palmeraie",
+        "name": "Palmeraie",
+        "name_ar": "النخيل",
+        "city": "Marrakech",
+        "zone_type": "luxury_villa_estate",
+        "description": "Legendary palm oasis covering thousands of hectares, home to prestigious luxury villas, golf resorts, and private mansions.",
+        "price_per_m2_min": 22000,
+        "price_per_m2_max": 42000,
+        "median_price_m2": 32000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "agdal",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.005,
+              31.615
+            ],
+            [
+              -7.97,
+              31.615
+            ],
+            [
+              -7.97,
+              31.585
+            ],
+            [
+              -8.005,
+              31.585
+            ],
+            [
+              -8.005,
+              31.615
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "agdal",
+        "name": "Agdal",
+        "name_ar": "أكدال",
+        "city": "Marrakech",
+        "zone_type": "modern_tourism_residential",
+        "description": "Southern extension along Boulevard Mohammed VI featuring large luxury complexes, shopping malls, and proximity to historic Agdal gardens.",
+        "price_per_m2_min": 12500,
+        "price_per_m2_max": 18500,
+        "median_price_m2": 15500
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "targa",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.08,
+              31.66
+            ],
+            [
+              -8.04,
+              31.66
+            ],
+            [
+              -8.035,
+              31.635
+            ],
+            [
+              -8.075,
+              31.63
+            ],
+            [
+              -8.08,
+              31.66
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "targa",
+        "name": "Targa",
+        "name_ar": "تاركة",
+        "city": "Marrakech",
+        "zone_type": "suburban_villa_family",
+        "description": "Quiet, leafy western suburb favored by families for modern private villas, private schools, and calm residential developments.",
+        "price_per_m2_min": 13000,
+        "price_per_m2_max": 19000,
+        "median_price_m2": 16000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "menara",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.04,
+              31.63
+            ],
+            [
+              -8.015,
+              31.63
+            ],
+            [
+              -8.015,
+              31.605
+            ],
+            [
+              -8.045,
+              31.605
+            ],
+            [
+              -8.04,
+              31.63
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "menara",
+        "name": "Menara",
+        "name_ar": "المنارة",
+        "city": "Marrakech",
+        "zone_type": "residential_parks",
+        "description": "Green residential sector adjacent to the famous 12th-century Menara pavilion, basin, and olive orchards.",
+        "price_per_m2_min": 11500,
+        "price_per_m2_max": 16500,
+        "median_price_m2": 14000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "semlalia",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.03,
+              31.655
+            ],
+            [
+              -8.01,
+              31.655
+            ],
+            [
+              -8.01,
+              31.642
+            ],
+            [
+              -8.03,
+              31.642
+            ],
+            [
+              -8.03,
+              31.655
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "semlalia",
+        "name": "Semlalia",
+        "name_ar": "السيملالية",
+        "city": "Marrakech",
+        "zone_type": "central_residential_medical",
+        "description": "Centrally located neighborhood near university campuses, reputable private clinics, and medium-density residential apartment buildings.",
+        "price_per_m2_min": 12000,
+        "price_per_m2_max": 17000,
+        "median_price_m2": 14500
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "massira",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.075,
+              31.635
+            ],
+            [
+              -8.045,
+              31.635
+            ],
+            [
+              -8.045,
+              31.615
+            ],
+            [
+              -8.075,
+              31.615
+            ],
+            [
+              -8.075,
+              31.635
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "massira",
+        "name": "Massira",
+        "name_ar": "المسيرة",
+        "city": "Marrakech",
+        "zone_type": "dense_urban_commercial",
+        "description": "Vibrant and dense commercial and residential district with accessible family apartments, lively local markets, and public transit links.",
+        "price_per_m2_min": 7500,
+        "price_per_m2_max": 11500,
+        "median_price_m2": 9500
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "daoudiate",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.01,
+              31.668
+            ],
+            [
+              -7.98,
+              31.668
+            ],
+            [
+              -7.98,
+              31.645
+            ],
+            [
+              -8.01,
+              31.645
+            ],
+            [
+              -8.01,
+              31.668
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "daoudiate",
+        "name": "Daoudiate",
+        "name_ar": "الداوديات",
+        "city": "Marrakech",
+        "zone_type": "university_hospital_residential",
+        "description": "Northern district hosting the Faculty of Medicine, regional hospital, student housing, and established residential subdivisions.",
+        "price_per_m2_min": 8500,
+        "price_per_m2_max": 13000,
+        "median_price_m2": 10750
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "mhamid",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -8.065,
+              31.605
+            ],
+            [
+              -8.03,
+              31.605
+            ],
+            [
+              -8.03,
+              31.57
+            ],
+            [
+              -8.065,
+              31.57
+            ],
+            [
+              -8.065,
+              31.605
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "mhamid",
+        "name": "Mhamid",
+        "name_ar": "المحاميد",
+        "city": "Marrakech",
+        "zone_type": "affordable_expansion",
+        "description": "Rapidly growing southwestern district offering affordable modern housing, new schools, and expanding public transit infrastructure.",
+        "price_per_m2_min": 6500,
+        "price_per_m2_max": 10500,
+        "median_price_m2": 8500
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "ennakhil",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -7.94,
+              31.685
+            ],
+            [
+              -7.9,
+              31.68
+            ],
+            [
+              -7.9,
+              31.635
+            ],
+            [
+              -7.94,
+              31.64
+            ],
+            [
+              -7.94,
+              31.685
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "ennakhil",
+        "name": "Ennakhil",
+        "name_ar": "باب أطلس - النخيل",
+        "city": "Marrakech",
+        "zone_type": "resort_golf_residential",
+        "description": "Northeastern gateway district near Route de Fes, known for golf resort communities, country clubs, and gated luxury developments.",
+        "price_per_m2_min": 15000,
+        "price_per_m2_max": 26000,
+        "median_price_m2": 20500
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "sidi_youssef",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -7.98,
+              31.615
+            ],
+            [
+              -7.955,
+              31.615
+            ],
+            [
+              -7.955,
+              31.585
+            ],
+            [
+              -7.98,
+              31.585
+            ],
+            [
+              -7.98,
+              31.615
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "sidi_youssef",
+        "name": "Sidi Youssef Ben Ali",
+        "name_ar": "سيدي يوسف بن علي",
+        "city": "Marrakech",
+        "zone_type": "traditional_family_quarter",
+        "description": "Traditional historic southeastern neighborhood with strong communal character, artisanal shops, and accessible family townhouses.",
+        "price_per_m2_min": 7000,
+        "price_per_m2_max": 11000,
+        "median_price_m2": 9000
+      }
+    }
+  ]
+}

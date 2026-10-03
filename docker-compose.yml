@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # PostgreSQL 16 with PostGIS 3.4 Spatial Database
+  # ----------------------------------------------------------------------------
+  postgis:
+    image: postgis/postgis:16-3.4
+    container_name: atlasestate_postgis
+    environment:
+      POSTGRES_USER: atlas_admin
+      POSTGRES_PASSWORD: atlas_secret_pw
+      POSTGRES_DB: atlasestate_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./sql/schema:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlas_admin -d atlasestate_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atlasestate_network
+
+  # ----------------------------------------------------------------------------
+  # FastAPI Geospatial Backend Service
+  # ----------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: atlasestate_backend
+    environment:
+      DATABASE_URL: postgresql://atlas_admin:atlas_secret_pw@postgis:5432/atlasestate_db
+      USE_SQLITE_FALLBACK: "False"
+      APP_ENV: production
+      PORT: 8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgis:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./reports:/app/reports
+    networks:
+      - atlasestate_network
+
+  # ----------------------------------------------------------------------------
+  # React + TypeScript + MapLibre 3D Frontend
+  # ----------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: atlasestate_frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - atlasestate_network
+
+volumes:
+  postgis_data:
+    driver: local
+
+networks:
+  atlasestate_network:
+    driver: bridge

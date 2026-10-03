@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: stg_properties
+    description: "Standardized property listings staging view"
+    columns:
+      - name: property_id
+        description: "Unique property identifier"
+        tests:
+          - unique
+          - not_null
+      - name: price
+        description: "Listing asking price in MAD"
+        tests:
+          - not_null
+      - name: surface_m2
+        description: "Living area in square meters"
+        tests:
+          - not_null
+      - name: neighborhood_id
+        description: "Foreign key to neighborhood"
+        tests:
+          - not_null
+
+  - name: stg_neighborhoods
+    description: "Staging view for Marrakech neighborhoods"
+    columns:
+      - name: neighborhood_id
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_pois
+    description: "Staging view for Points of Interest"
+    columns:
+      - name: poi_id
+        tests:
+          - unique
+          - not_null

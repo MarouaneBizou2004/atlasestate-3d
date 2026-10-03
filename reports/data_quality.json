@@ -1,0 +1,14 @@
+{
+    "execution_timestamp": "2026-10-03 11:48:50 UTC",
+    "batch_id": "9ef75c4b-9e8f-4cb8-96b9-fcf669ef415b",
+    "records_received": 1290,
+    "records_valid": 1290,
+    "records_rejected": 0,
+    "quality_pass_rate_pct": 100.0,
+    "duplicates_removed": 0,
+    "invalid_coordinates": 0,
+    "invalid_prices": 0,
+    "invalid_surfaces": 0,
+    "invalid_price_per_m2": 0,
+    "geocoding_accuracy": "100.0% Verified Ground Polygon Intersection"
+}
