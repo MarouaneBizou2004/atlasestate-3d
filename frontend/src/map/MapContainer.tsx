@@ -20,6 +20,28 @@ const MAP_STYLES = {
   bright: 'https://tiles.openfreemap.org/styles/bright',
 };
 
+// Enable Right-to-Left (RTL) text shaping for proper Arabic street and landmark rendering
+try {
+  if (typeof (maplibregl as any).getRTLTextPluginStatus === 'function' && (maplibregl as any).getRTLTextPluginStatus() === 'unavailable') {
+    (maplibregl as any).setRTLTextPlugin(
+      '/mapbox-gl-rtl-text.js',
+      (err: any) => {
+        if (err) {
+          console.warn('Local RTL plugin failed, loading from CDN:', err);
+          (maplibregl as any).setRTLTextPlugin(
+            'https://unpkg.com/@mapbox/mapbox-gl-rtl-text@0.2.3/mapbox-gl-rtl-text.min.js',
+            null,
+            true
+          );
+        }
+      },
+      true // Lazy: loads as soon as Arabic/RTL text is encountered
+    );
+  }
+} catch (e) {
+  console.warn('RTL plugin already initialized or not supported:', e);
+}
+
 export const MapContainer: React.FC<MapContainerProps> = ({
   propertiesGeoJSON,
   neighborhoodsGeoJSON,
