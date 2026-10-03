@@ -25,7 +25,11 @@
 
 ## 🌟 Key Features
 
-* **3D Urban Explorer:** Interactive 3D vector map of Marrakech with real-time camera pitch, 360° rotation, 3D extruded building footprint approximations, and 6 specialized geospatial visualization modes.
+* **3D Urban Explorer & Picking Engine:** Interactive 3D vector map of Marrakech with real-time camera pitch, 360° rotation, 3D extruded buildings, and an intelligent **Two-Tier Picking Architecture**:
+  - **Case A (Single Unit):** Clicking property pins or individual villas immediately highlights the coordinates with a 3D elevated beacon pillar and opens the full property intelligence drawer.
+  - **Case B (Multi-Unit Complex):** Clicking urban residential building footprints aggregates all units inside that building, displaying median pricing, unit rates, and a selectable unit directory.
+  - **3D Visual Highlight & Deselect:** Dynamic glowing ground halo + vertical extrusion beacon on selected coordinates, dismissible via Close button, `ESC` key, or clicking empty map canvas.
+* **Instant Search Autocomplete:** Real-time search engine with autocomplete dropdown querying Property IDs (e.g. `MAR-MUB-00502`), districts, titles, and typologies.
 * **Medallion Data Pipeline:** Multi-tier Bronze $\rightarrow$ Silver $\rightarrow$ Gold architecture storing raw, cleaned, and enriched analytical data in high-performance Apache Parquet format with 100% data validation.
 * **Dual-Engine Spatial Warehouse:** Dual-engine architecture featuring PostgreSQL 16 + PostGIS 3.4 with GIST indexing for containerized production, plus an automatic zero-dependency SQLite fallback for local host execution.
 * **dbt Core Transformations:** 9 production-grade dbt models (Staging, Intermediate, Kimball Marts) and singular assertion tests guaranteeing spatial and financial integrity.
@@ -33,6 +37,7 @@
 * **Spatial KNN Comparable Search:** Multi-attribute recommendation engine matching properties within a 2-kilometer radius based on distance, surface area, room count, and amenities.
 * **High-Throughput REST API:** FastAPI backend providing spatial search, bounding box filters, radius geofencing, market telemetry, and dynamic CSV/GeoJSON exports.
 * **Production Orchestration:** Apache Airflow DAG (`real_estate_pipeline`) automating daily scheduled ETL, spatial feature calculation, dbt execution, and ML model retraining.
+* **Comprehensive Quality & Audit:** Verified by [Feature Audit](docs/FEATURE_AUDIT.md) and [Final QA Report](docs/FINAL_QA_REPORT.md) with 100% pass across all 40 criteria.
 
 ---
 

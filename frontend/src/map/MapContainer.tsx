@@ -10,8 +10,9 @@ interface MapContainerProps {
   poisGeoJSON: any;
   mapMode: MapMode;
   selectedPropertyId: string | null;
-  onSelectProperty: (propertyId: string) => void;
+  onSelectProperty: (propertyId: string | null) => void;
   onSelectNeighborhood?: (neighborhoodId: string) => void;
+  onSelectBuilding?: (buildingData: { title: string; neighborhood: string; properties: any[] }) => void;
 }
 
 // Basemap Styles with Satellite 3D and Vector options
@@ -69,6 +70,21 @@ try {
   console.warn('RTL plugin already initialized or not supported:', e);
 }
 
+// Calculate distance in meters between two lat/lon points
+function calcDistMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371000;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 export const MapContainer: React.FC<MapContainerProps> = ({
   propertiesGeoJSON,
   neighborhoodsGeoJSON,
@@ -77,6 +93,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   selectedPropertyId,
   onSelectProperty,
   onSelectNeighborhood,
+  onSelectBuilding,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -92,8 +109,8 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       container: mapContainerRef.current,
       style: MAP_STYLES[activeStyle],
       center: [-8.0125, 31.6346], // Marrakech center (Gueliz)
-      zoom: 13.2,
-      pitch: 52, // Cinematic 3D Camera Tilt
+      zoom: 13.5,
+      pitch: 52, // 3D Camera Tilt
       bearing: -18,
       antialias: true,
       maxPitch: 75,
@@ -131,16 +148,32 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   // Configure Realistic 3D Directional Lighting & Sun Shadows
   const setupLightingAndAtmosphere = (map: maplibregl.Map) => {
     try {
-      // Warm Moroccan Golden Hour directional sunlight
       map.setLight({
         anchor: 'viewport',
         color: activeStyle === 'dark' ? '#fed7aa' : '#ffffff',
         intensity: activeStyle === 'dark' ? 0.6 : 0.45,
-        position: [1.35, 75, 42] // [radial coordinate, azimuthal angle, polar angle]
+        position: [1.35, 75, 42],
       });
     } catch (err) {
       console.warn('Map lighting setup error:', err);
     }
+  };
+
+  // Helper to find properties near a coordinate
+  const findNearbyProperties = (lng: number, lat: number, maxDistanceMeters = 120): any[] => {
+    if (!propertiesGeoJSON || !propertiesGeoJSON.features) return [];
+    const matches: any[] = [];
+    for (const feat of propertiesGeoJSON.features) {
+      const coords = feat.geometry?.coordinates;
+      if (coords && coords.length === 2) {
+        const d = calcDistMeters(lat, lng, coords[1], coords[0]);
+        if (d <= maxDistanceMeters) {
+          matches.push({ ...feat.properties, distance: d });
+        }
+      }
+    }
+    matches.sort((a, b) => a.distance - b.distance);
+    return matches;
   };
 
   // Configure All Spatial Layers
@@ -167,27 +200,27 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             type: 'fill-extrusion',
             minzoom: 13,
             paint: {
-              // Facade shading with height gradient: taller buildings get modern tinted slate
-              'fill-extrusion-color': activeStyle === 'satellite'
-                ? 'rgba(255, 255, 255, 0.28)'
-                : activeStyle === 'dark'
-                ? [
-                    'interpolate',
-                    ['linear'],
-                    ['coalesce', ['get', 'render_height'], ['get', 'height'], 12],
-                    6, '#182234',
-                    15, '#1e293b',
-                    25, '#293548',
-                    40, '#334155',
-                    60, '#38bdf8'
-                  ]
-                : '#cbd5e1',
+              'fill-extrusion-color':
+                activeStyle === 'satellite'
+                  ? 'rgba(255, 255, 255, 0.28)'
+                  : activeStyle === 'dark'
+                  ? [
+                      'interpolate',
+                      ['linear'],
+                      ['coalesce', ['get', 'render_height'], ['get', 'height'], 12],
+                      6, '#182234',
+                      15, '#1e293b',
+                      25, '#293548',
+                      40, '#334155',
+                      60, '#38bdf8',
+                    ]
+                  : '#cbd5e1',
               'fill-extrusion-height': [
                 'interpolate',
                 ['linear'],
                 ['zoom'],
                 13, 0,
-                15.5, ['coalesce', ['get', 'render_height'], ['get', 'height'], 14]
+                15.5, ['coalesce', ['get', 'render_height'], ['get', 'height'], 14],
               ],
               'fill-extrusion-base': ['coalesce', ['get', 'render_min_height'], 0],
               'fill-extrusion-opacity': activeStyle === 'satellite' ? 0.45 : 0.88,
@@ -279,7 +312,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         type: 'fill-extrusion',
         source: 'neighborhoods-data',
         layout: {
-          visibility: 'none', // Strictly hidden on startup!
+          visibility: 'none',
         },
         paint: {
           'fill-extrusion-color': [
@@ -290,12 +323,12 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             12000, '#0ea5e9',
             18000, '#eab308',
             24000, '#f97316',
-            32000, '#ef4444'
+            32000, '#ef4444',
           ],
           'fill-extrusion-height': [
             'coalesce',
             ['get', 'extrusion_height_ppm2'],
-            ['*', ['coalesce', ['get', 'median_price_per_m2'], 15000], 0.015]
+            ['*', ['coalesce', ['get', 'median_price_per_m2'], 15000], 0.015],
           ],
           'fill-extrusion-base': 0,
           'fill-extrusion-opacity': 0.65,
@@ -311,8 +344,8 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         type: 'geojson',
         data: propertiesGeoJSON || { type: 'FeatureCollection', features: [] },
         cluster: true,
-        clusterMaxZoom: 14,
-        clusterRadius: 42,
+        clusterMaxZoom: 13,
+        clusterRadius: 36,
       });
     }
 
@@ -333,7 +366,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             '#38bdf8', 25,
             '#10b981', 75,
             '#f59e0b', 150,
-            '#ef4444'
+            '#ef4444',
           ],
           'circle-opacity': 0.92,
         },
@@ -373,9 +406,9 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             7000, '#38bdf8',
             14000, '#10b981',
             22000, '#f59e0b',
-            32000, '#ef4444'
+            32000, '#ef4444',
           ],
-          'circle-radius': 6,
+          'circle-radius': 6.5,
           'circle-stroke-width': 2,
           'circle-stroke-color': '#ffffff',
           'circle-opacity': 0.95,
@@ -400,7 +433,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             'Below model estimate', '#22c55e',
             'Near model estimate', '#38bdf8',
             'Above model estimate', '#ef4444',
-            '#94a3b8'
+            '#94a3b8',
           ],
           'circle-radius': 7,
           'circle-stroke-width': 2,
@@ -431,7 +464,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             0.4, '#10b981',
             0.6, '#eab308',
             0.8, '#f97316',
-            1, '#ef4444'
+            1, '#ef4444',
           ],
           'heatmap-radius': 24,
           'heatmap-opacity': 0.8,
@@ -440,66 +473,212 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
 
     // -------------------------------------------------------------------------
-    // 5. Interactive Event Handlers
+    // 5. Selected Property 3D Visual Highlight Layers
     // -------------------------------------------------------------------------
-    // Landmark Hover Tooltip
-    map.on('mouseenter', 'landmarks-3d-layer', (e) => {
-      map.getCanvas().style.cursor = 'pointer';
-      if (!e.features || !e.features[0] || !popupRef.current) return;
-      const f = e.features[0];
-      const p = f.properties;
+    if (!map.getSource('selected-property-source')) {
+      map.addSource('selected-property-source', {
+        type: 'geojson',
+        data: { type: 'FeatureCollection', features: [] },
+      });
+    }
 
-      const html = `
-        <div style="font-family: sans-serif; padding: 6px 8px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 150px; border: 1px solid #334155;">
-          <div style="font-weight: 700; color: #f59e0b; font-size: 12px; margin-bottom: 2px;">🏛️ ${p.name}</div>
-          <div style="color: #cbd5e1; font-size: 10px; line-height: 1.4;">${p.description}</div>
-          <div style="color: #38bdf8; font-size: 10px; margin-top: 4px; font-family: monospace;">Elevation: ${p.height}m</div>
-        </div>
-      `;
+    // A. Glowing Ground Pulsing Halo
+    if (!map.getLayer('selected-property-halo')) {
+      map.addLayer({
+        id: 'selected-property-halo',
+        type: 'circle',
+        source: 'selected-property-source',
+        paint: {
+          'circle-radius': 18,
+          'circle-color': 'rgba(56, 189, 248, 0.25)',
+          'circle-stroke-width': 3,
+          'circle-stroke-color': '#38bdf8',
+          'circle-opacity': 0.95,
+        },
+      });
+    }
 
-      popupRef.current.setLngLat(e.lngLat).setHTML(html).addTo(map);
-    });
+    // B. Vertical 3D Highlight Core
+    if (!map.getLayer('selected-property-beacon-3d')) {
+      map.addLayer({
+        id: 'selected-property-beacon-3d',
+        type: 'circle',
+        source: 'selected-property-source',
+        paint: {
+          'circle-radius': 8,
+          'circle-color': '#f8fafc',
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#0f172a',
+          'circle-opacity': 1,
+        },
+      });
+    }
 
-    map.on('mouseleave', 'landmarks-3d-layer', () => {
-      map.getCanvas().style.cursor = '';
-      if (popupRef.current) popupRef.current.remove();
-    });
+    // -------------------------------------------------------------------------
+    // 6. Comprehensive Interactive Event Listeners (Fixing 3D Clicks!)
+    // -------------------------------------------------------------------------
 
-    // Property Pin Click
-    const handlePropClick = (e: any) => {
+    // A. Direct Property Pin Click
+    const handleDirectPropClick = (e: any) => {
       if (!e.features || !e.features[0]) return;
       const feat = e.features[0];
-      const propId = feat.properties.property_id;
+      const propId = feat.properties?.property_id;
+      if (!propId) return;
+
       onSelectProperty(propId);
 
-      map.flyTo({
-        center: (feat.geometry as any).coordinates,
-        zoom: 15.5,
-        pitch: 58,
-        speed: 1.2,
-      });
+      const coords = (feat.geometry as any).coordinates;
+      if (coords) {
+        map.flyTo({
+          center: coords,
+          zoom: 16,
+          pitch: 58,
+          speed: 1.2,
+        });
+      }
     };
 
-    map.on('click', 'unclustered-points', handlePropClick);
-    map.on('click', 'value-gap-points', handlePropClick);
+    map.on('click', 'unclustered-points', handleDirectPropClick);
+    map.on('click', 'value-gap-points', handleDirectPropClick);
 
-    // Cluster Click -> Zoom In
+    // B. 3D Building Click: Search properties in this building footprint
+    map.on('click', '3d-buildings', (e) => {
+      const clickLng = e.lngLat.lng;
+      const clickLat = e.lngLat.lat;
+
+      // Find nearby property listings belonging to or near this building
+      const nearbyUnits = findNearbyProperties(clickLng, clickLat, 90);
+
+      if (nearbyUnits.length === 1) {
+        // Single unit building (e.g. villa or private house)
+        onSelectProperty(nearbyUnits[0].property_id);
+        map.flyTo({ center: [clickLng, clickLat], zoom: 16, pitch: 58, speed: 1.2 });
+      } else if (nearbyUnits.length > 1) {
+        // Multi-unit residential or commercial building
+        if (onSelectBuilding) {
+          onSelectBuilding({
+            title: nearbyUnits[0].title || 'Urban Residential Complex',
+            neighborhood: nearbyUnits[0].neighborhood || 'Gueliz',
+            properties: nearbyUnits,
+          });
+        } else {
+          onSelectProperty(nearbyUnits[0].property_id);
+        }
+        map.flyTo({ center: [clickLng, clickLat], zoom: 15.5, pitch: 55, speed: 1.2 });
+      } else {
+        // Building clicked but no listing mapped inside it: show nearest available property
+        const widerSearch = findNearbyProperties(clickLng, clickLat, 300);
+        if (widerSearch.length > 0) {
+          onSelectProperty(widerSearch[0].property_id);
+        }
+      }
+    });
+
+    // C. 3D Landmark Click (Koutoubia, Menara, Gare de Marrakech, Carre Eden)
+    map.on('click', 'landmarks-3d-layer', (e) => {
+      if (!e.features || !e.features[0]) return;
+      const f = e.features[0];
+      const p = f.properties;
+      const clickLng = e.lngLat.lng;
+      const clickLat = e.lngLat.lat;
+
+      const nearbyListings = findNearbyProperties(clickLng, clickLat, 450);
+
+      if (nearbyListings.length > 0 && onSelectBuilding) {
+        onSelectBuilding({
+          title: `Landmark: ${p.name}`,
+          neighborhood: p.category ? p.category.replace('_', ' ').toUpperCase() : 'Marrakech',
+          properties: nearbyListings,
+        });
+      } else if (nearbyListings.length > 0) {
+        onSelectProperty(nearbyListings[0].property_id);
+      }
+
+      map.flyTo({ center: [clickLng, clickLat], zoom: 15.5, pitch: 58, speed: 1.2 });
+    });
+
+    // D. Cluster Bubble Click
     map.on('click', 'clusters-layer', (e) => {
       const features = map.queryRenderedFeatures(e.point, { layers: ['clusters-layer'] });
       if (!features[0]) return;
       const clusterId = features[0].properties.cluster_id;
+
+      // Check zoom level: if user is already zoomed in, show properties in that cluster
+      const currentZoom = map.getZoom();
+      if (currentZoom >= 13.5 && onSelectBuilding) {
+        const clusterCoords = (features[0].geometry as any).coordinates;
+        const clusterProps = findNearbyProperties(clusterCoords[0], clusterCoords[1], 150);
+        if (clusterProps.length > 0) {
+          onSelectBuilding({
+            title: `Property Cluster (${clusterProps.length} units)`,
+            neighborhood: clusterProps[0].neighborhood || 'Marrakech',
+            properties: clusterProps,
+          });
+          return;
+        }
+      }
+
       (map.getSource('properties-data') as any).getClusterExpansionZoom(clusterId, (err: any, zoom: number) => {
         if (err) return;
         map.easeTo({
           center: (features[0].geometry as any).coordinates,
-          zoom: zoom + 0.8,
+          zoom: zoom + 1.2,
         });
+      });
+    });
+
+    // E. 3D Neighborhood Extrusion Click
+    map.on('click', 'neighborhoods-3d-extrusions', (e) => {
+      if (!e.features || !e.features[0]) return;
+      const f = e.features[0];
+      const name = f.properties?.name;
+      if (name && onSelectNeighborhood) {
+        onSelectNeighborhood(name);
+      }
+    });
+
+    // F. General Canvas Click (Clicking Empty Space Deselects)
+    map.on('click', (e) => {
+      // Check if click hit any interactive layer
+      const hits = map.queryRenderedFeatures(e.point, {
+        layers: [
+          'unclustered-points',
+          'value-gap-points',
+          '3d-buildings',
+          'landmarks-3d-layer',
+          'clusters-layer',
+          'neighborhoods-3d-extrusions',
+        ],
+      });
+
+      if (hits.length === 0) {
+        onSelectProperty(null);
+      }
+    });
+
+    // -------------------------------------------------------------------------
+    // 7. Interactive Hover Cursor & Tooltip State
+    // -------------------------------------------------------------------------
+    const interactiveLayers = [
+      'unclustered-points',
+      'value-gap-points',
+      'clusters-layer',
+      '3d-buildings',
+      'landmarks-3d-layer',
+      'neighborhoods-3d-extrusions',
+    ];
+
+    interactiveLayers.forEach((layerId) => {
+      map.on('mouseenter', layerId, () => {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', layerId, () => {
+        map.getCanvas().style.cursor = '';
       });
     });
 
     // Hover Tooltip on Property Pin
     map.on('mouseenter', 'unclustered-points', (e) => {
-      map.getCanvas().style.cursor = 'pointer';
       if (!e.features || !e.features[0] || !popupRef.current) return;
       const f = e.features[0];
       const coords = (f.geometry as any).coordinates.slice();
@@ -520,34 +699,27 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     });
 
     map.on('mouseleave', 'unclustered-points', () => {
-      map.getCanvas().style.cursor = '';
       if (popupRef.current) popupRef.current.remove();
     });
 
-    map.on('mouseenter', 'clusters-layer', () => (map.getCanvas().style.cursor = 'pointer'));
-    map.on('mouseleave', 'clusters-layer', () => (map.getCanvas().style.cursor = ''));
-
-    // Hover Tooltip on 3D Neighborhood Extrusions
-    map.on('mouseenter', 'neighborhoods-3d-extrusions', (e) => {
-      if (mapMode !== 'neighborhood' && mapMode !== 'activity') return;
-      map.getCanvas().style.cursor = 'pointer';
+    // Hover Tooltip on Landmark
+    map.on('mouseenter', 'landmarks-3d-layer', (e) => {
       if (!e.features || !e.features[0] || !popupRef.current) return;
       const f = e.features[0];
       const p = f.properties;
 
       const html = `
-        <div style="font-family: sans-serif; padding: 8px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 160px; border: 1px solid #334155;">
-          <div style="font-weight: 700; color: #38bdf8; font-size: 13px;">${p.name}</div>
-          <div style="color: #cbd5e1; margin-top: 4px;">Median Price/m²: <strong style="color: #10b981;">${(p.median_price_per_m2 || p.median_price_m2 || 0).toLocaleString()} MAD</strong></div>
-          <div style="color: #cbd5e1; margin-top: 2px;">Active Listings: <strong style="color: #38bdf8;">${p.active_listings_count || 0} units</strong></div>
+        <div style="font-family: sans-serif; padding: 6px 8px; font-size: 11px; color: #f8fafc; background: #0f172a; border-radius: 6px; min-width: 150px; border: 1px solid #334155;">
+          <div style="font-weight: 700; color: #f59e0b; font-size: 12px; margin-bottom: 2px;">🏛️ ${p.name}</div>
+          <div style="color: #cbd5e1; font-size: 10px; line-height: 1.4;">${p.description}</div>
+          <div style="color: #38bdf8; font-size: 10px; margin-top: 4px; font-family: monospace;">Elevation: ${p.height}m</div>
         </div>
       `;
 
       popupRef.current.setLngLat(e.lngLat).setHTML(html).addTo(map);
     });
 
-    map.on('mouseleave', 'neighborhoods-3d-extrusions', () => {
-      map.getCanvas().style.cursor = '';
+    map.on('mouseleave', 'landmarks-3d-layer', () => {
       if (popupRef.current) popupRef.current.remove();
     });
 
@@ -607,7 +779,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         map.setPaintProperty('neighborhoods-3d-extrusions', 'fill-extrusion-height', [
           'coalesce',
           ['get', 'extrusion_height_ppm2'],
-          ['*', ['coalesce', ['get', 'median_price_per_m2'], 15000], 0.015]
+          ['*', ['coalesce', ['get', 'median_price_per_m2'], 15000], 0.015],
         ]);
       }
     } else if (mode === 'activity') {
@@ -624,7 +796,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         map.setPaintProperty('neighborhoods-3d-extrusions', 'fill-extrusion-height', [
           'coalesce',
           ['get', 'extrusion_height_density'],
-          ['*', ['coalesce', ['get', 'active_listings_count'], 20], 3.0]
+          ['*', ['coalesce', ['get', 'active_listings_count'], 20], 3.0],
         ]);
       }
     } else if (mode === 'value_gap') {
@@ -653,6 +825,33 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     }
   }, [propertiesGeoJSON, neighborhoodsGeoJSON]);
 
+  // Update Selected Property 3D Visual Highlight
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    if (!map.getSource('selected-property-source')) return;
+
+    if (!selectedPropertyId || !propertiesGeoJSON || !propertiesGeoJSON.features) {
+      (map.getSource('selected-property-source') as any).setData({
+        type: 'FeatureCollection',
+        features: [],
+      });
+      return;
+    }
+
+    const matchFeat = propertiesGeoJSON.features.find(
+      (f: any) => f.properties?.property_id === selectedPropertyId
+    );
+
+    if (matchFeat && matchFeat.geometry) {
+      (map.getSource('selected-property-source') as any).setData({
+        type: 'FeatureCollection',
+        features: [matchFeat],
+      });
+    }
+  }, [selectedPropertyId, propertiesGeoJSON]);
+
   // Update Mode Visibility on mode change
   useEffect(() => {
     if (!mapRef.current) return;
@@ -664,7 +863,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     if (mapRef.current) {
       mapRef.current.flyTo({
         center: [-8.0125, 31.6346],
-        zoom: 13.2,
+        zoom: 13.5,
         pitch: 52,
         bearing: -18,
         speed: 1.2,

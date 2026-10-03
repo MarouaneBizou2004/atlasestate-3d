@@ -1,5 +1,5 @@
-import React from 'react';
-import { Search, RotateCcw, SlidersHorizontal, Layers, Eye } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, RotateCcw, SlidersHorizontal, Layers, X, ChevronRight } from 'lucide-react';
 import { MapMode } from '../types';
 
 interface FilterSidebarProps {
@@ -9,6 +9,8 @@ interface FilterSidebarProps {
   setMapMode: (mode: MapMode) => void;
   neighborhoodsList: string[];
   totalMatches: number;
+  onSelectProperty?: (propertyId: string) => void;
+  allProperties?: any[];
 }
 
 export const FilterSidebar: React.FC<FilterSidebarProps> = ({
@@ -18,7 +20,12 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   setMapMode,
   neighborhoodsList,
   totalMatches,
+  onSelectProperty,
+  allProperties = [],
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSearchResults, setShowSearchResults] = useState(false);
+
   const propertyTypes = ['All', 'Apartment', 'Villa', 'Riad', 'Duplex', 'Commercial'];
   const bedroomOptions = ['Any', '1+', '2+', '3+', '4+', '5+'];
 
@@ -32,14 +39,15 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   ];
 
   const handleReset = () => {
+    setSearchQuery('');
     setFilters({
       search: '',
       neighborhood: 'all',
       property_type: 'all',
       min_price: 500000,
-      max_price: 15000000,
+      max_price: 20000000,
       min_surface: 30,
-      max_surface: 600,
+      max_surface: 800,
       bedrooms: 'any',
       has_pool: false,
       has_parking: false,
@@ -48,6 +56,27 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       has_garden: false,
       valuation_status: 'all',
     });
+  };
+
+  // Autocomplete matching properties
+  const searchMatches = searchQuery.trim().length >= 2 && allProperties.length > 0
+    ? allProperties.filter((p: any) => {
+        const q = searchQuery.toLowerCase();
+        return (
+          (p.property_id && p.property_id.toLowerCase().includes(q)) ||
+          (p.neighborhood && p.neighborhood.toLowerCase().includes(q)) ||
+          (p.property_type && p.property_type.toLowerCase().includes(q)) ||
+          (p.title && p.title.toLowerCase().includes(q))
+        );
+      }).slice(0, 6)
+    : [];
+
+  const handleSelectSearchResult = (propId: string) => {
+    setShowSearchResults(false);
+    setSearchQuery('');
+    if (onSelectProperty) {
+      onSelectProperty(propId);
+    }
   };
 
   return (
@@ -61,8 +90,102 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
       display: 'flex',
       flexDirection: 'column',
       gap: '18px',
-      zIndex: 20
+      zIndex: 20,
+      position: 'relative'
     }}>
+      {/* Search Input Box */}
+      <div style={{ position: 'relative' }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: '#1e293b',
+          border: '1px solid #334155',
+          borderRadius: '8px',
+          padding: '8px 12px',
+          gap: '8px'
+        }}>
+          <Search size={15} color="#94a3b8" />
+          <input
+            type="text"
+            placeholder="Search ID, neighborhood, type..."
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSearchResults(true);
+            }}
+            onFocus={() => setShowSearchResults(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#f8fafc',
+              fontSize: '12px',
+              width: '100%',
+              outline: 'none'
+            }}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setShowSearchResults(false);
+              }}
+              style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Live Search Autocomplete Dropdown */}
+        {showSearchResults && searchMatches.length > 0 && (
+          <div style={{
+            position: 'absolute',
+            top: '42px',
+            left: 0,
+            right: 0,
+            backgroundColor: '#0f172a',
+            border: '1px solid #38bdf8',
+            borderRadius: '8px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.7)',
+            zIndex: 50,
+            overflow: 'hidden',
+            maxHeight: '260px',
+            overflowY: 'auto'
+          }}>
+            <div style={{ padding: '6px 10px', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '1px solid #1e293b', fontWeight: 700 }}>
+              Matching Properties ({searchMatches.length})
+            </div>
+            {searchMatches.map((match: any) => (
+              <div
+                key={match.property_id}
+                onClick={() => handleSelectSearchResult(match.property_id)}
+                style={{
+                  padding: '8px 10px',
+                  borderBottom: '1px solid #1e293b',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'background-color 0.15s'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#f8fafc' }}>
+                    {match.property_type || 'Listing'} in {match.neighborhood}
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#38bdf8', fontFamily: 'monospace' }}>
+                    {match.property_id} • {(match.price || 0).toLocaleString()} MAD
+                  </div>
+                </div>
+                <ChevronRight size={14} color="#94a3b8" />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       {/* 3D Visualization Modes */}
       <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>

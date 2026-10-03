@@ -280,6 +280,7 @@ def get_property_by_id(property_id: str):
     return match.iloc[0].to_dict()
 
 @router.get("/comparables/{property_id}")
+@router.get("/properties/{property_id}/comparables")
 def get_comparables(property_id: str, limit: int = Query(6, ge=1, le=12)):
     df = get_gold_df()
     match = df[df["property_id"] == property_id]
