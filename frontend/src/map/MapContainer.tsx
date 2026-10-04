@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapMode } from '../types';
-import { RotateCcw, Compass, Sun, Moon, Globe, Map as MapIcon } from 'lucide-react';
+import { RotateCcw, Compass, Sun, Moon, Globe, Map as MapIcon, Clock } from 'lucide-react';
+import { SunSimulationWidget } from '../components/SunSimulationWidget';
+import { SolarTelemetry } from '../utils/solarCalculator';
 
 interface MapContainerProps {
   propertiesGeoJSON: any;
@@ -124,6 +126,24 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const [activeStyle, setActiveStyle] = useState<'dark' | 'satellite' | 'liberty' | 'bright'>('dark');
   const [styleLoaded, setStyleLoaded] = useState(false);
+  const [showSunSimulator, setShowSunSimulator] = useState<boolean>(false);
+  const currentSunTelemetryRef = useRef<SolarTelemetry | null>(null);
+
+  // Dynamic Daylight & Solar Shadow Lighting Handler
+  const handleSolarLightingChange = useCallback((telemetry: SolarTelemetry) => {
+    currentSunTelemetryRef.current = telemetry;
+    if (!mapRef.current) return;
+    try {
+      mapRef.current.setLight({
+        anchor: 'map', // Map-aligned orientation for authentic geographic solar positioning
+        color: telemetry.lightColor,
+        intensity: telemetry.lightIntensity,
+        position: [1.35, telemetry.azimuthDeg, telemetry.polarDeg],
+      });
+    } catch (err) {
+      console.warn('Error applying solar lighting to MapLibre:', err);
+    }
+  }, []);
 
   // Keep live references to prevent stale closures during async tile loading
   const propertiesGeoJSONRef = useRef(propertiesGeoJSON);
@@ -180,6 +200,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     });
 
     mapRef.current = map;
+    (window as any).map = map;
 
     return () => {
       map.remove();
@@ -197,12 +218,22 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   // Configure Realistic 3D Directional Lighting & Sun Shadows
   const setupLightingAndAtmosphere = (map: maplibregl.Map) => {
     try {
-      map.setLight({
-        anchor: 'viewport',
-        color: activeStyle === 'dark' ? '#fed7aa' : '#ffffff',
-        intensity: activeStyle === 'dark' ? 0.6 : 0.45,
-        position: [1.35, 75, 42],
-      });
+      if (currentSunTelemetryRef.current) {
+        const t = currentSunTelemetryRef.current;
+        map.setLight({
+          anchor: 'map',
+          color: t.lightColor,
+          intensity: t.lightIntensity,
+          position: [1.35, t.azimuthDeg, t.polarDeg],
+        });
+      } else {
+        map.setLight({
+          anchor: 'map',
+          color: activeStyle === 'dark' ? '#fed7aa' : '#ffffff',
+          intensity: activeStyle === 'dark' ? 0.65 : 0.52,
+          position: [1.35, 195, 38], // Default Marrakech afternoon sun
+        });
+      }
     } catch (err) {
       console.warn('Map lighting setup error:', err);
     }
@@ -316,6 +347,19 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       });
     }
 
+    // A0. Interactive Neighborhoods Polygon Fill
+    if (!map.getLayer('neighborhoods-fill')) {
+      map.addLayer({
+        id: 'neighborhoods-fill',
+        type: 'fill',
+        source: 'neighborhoods-data',
+        paint: {
+          'fill-color': '#0284c7',
+          'fill-opacity': 0.05,
+        },
+      });
+    }
+
     // A. Subtle Neighborhood Boundaries Outline
     if (!map.getLayer('neighborhoods-outline')) {
       map.addLayer({
@@ -393,7 +437,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         type: 'geojson',
         data: propertiesGeoJSONRef.current || { type: 'FeatureCollection', features: [] },
         cluster: true,
-        clusterMaxZoom: 13,
+        clusterMaxZoom: 12,
         clusterRadius: 36,
       });
     }
@@ -432,7 +476,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         layout: {
           'text-field': '{point_count_abbreviated}',
           'text-size': 11,
-          'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+          'text-font': ['Noto Sans Bold', 'Open Sans Bold', 'Arial Unicode MS Bold'],
         },
         paint: {
           'text-color': '#f8fafc',
@@ -610,6 +654,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     // A. Direct Property Pin Click
     const handleDirectPropClick = (e: any) => {
       if (!e.features || !e.features[0]) return;
+      if (e.originalEvent) (e.originalEvent as any)._atlasHandled = true;
       const feat = e.features[0];
       const propId = feat.properties?.property_id;
       if (!propId) return;
@@ -632,6 +677,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
     // B. 3D Building Click: Search properties in this building footprint
     map.on('click', '3d-buildings', (e) => {
+      if (e.originalEvent) (e.originalEvent as any)._atlasHandled = true;
       const clickLng = e.lngLat.lng;
       const clickLat = e.lngLat.lat;
 
@@ -666,6 +712,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
     // C. 3D Landmark Click (Koutoubia, Menara, Gare de Marrakech, Carre Eden)
     map.on('click', 'landmarks-3d-layer', (e) => {
       if (!e.features || !e.features[0]) return;
+      if (e.originalEvent) (e.originalEvent as any)._atlasHandled = true;
       const f = e.features[0];
       const p = f.properties;
       const clickLng = e.lngLat.lng;
@@ -688,6 +735,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
 
     // D. Cluster Bubble Click
     map.on('click', 'clusters-layer', (e) => {
+      if (e.originalEvent) (e.originalEvent as any)._atlasHandled = true;
       const features = map.queryRenderedFeatures(e.point, { layers: ['clusters-layer'] });
       if (!features[0]) return;
       const clusterId = features[0].properties.cluster_id;
@@ -716,18 +764,25 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       });
     });
 
-    // E. 3D Neighborhood Extrusion Click
-    map.on('click', 'neighborhoods-3d-extrusions', (e) => {
-      if (!e.features || !e.features[0]) return;
-      const f = e.features[0];
-      const name = f.properties?.name;
-      if (name && onSelectNeighborhood) {
-        onSelectNeighborhood(name);
+    // E. Neighborhood Click Listener (Fill, Labels, Extrusions)
+    ['neighborhoods-fill', 'neighborhoods-labels', 'neighborhoods-3d-extrusions'].forEach((layerId) => {
+      if (map.getLayer(layerId)) {
+        map.on('click', layerId, (e) => {
+          if ((e.originalEvent as any)?._atlasHandled) return;
+          if (!e.features || !e.features[0]) return;
+          if (e.originalEvent) (e.originalEvent as any)._atlasHandled = true;
+          const f = e.features[0];
+          const name = f.properties?.name || f.properties?.id;
+          if (name && onSelectNeighborhood) {
+            onSelectNeighborhood(name);
+          }
+        });
       }
     });
 
     // F. General Canvas Click (Clicking Empty Space Deselects)
     map.on('click', (e) => {
+      if ((e.originalEvent as any)?._atlasHandled) return;
       // Check if click hit any interactive layer
       const hits = map.queryRenderedFeatures(e.point, {
         layers: [
@@ -736,6 +791,8 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           '3d-buildings',
           'landmarks-3d-layer',
           'clusters-layer',
+          'neighborhoods-fill',
+          'neighborhoods-labels',
           'neighborhoods-3d-extrusions',
         ],
       });
@@ -1094,74 +1151,73 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         </div>
       )}
 
-      {/* Floating Bottom Left Controls: Camera & Style */}
+      {/* HUD Floating Controls */}
       <div
         style={{
           position: 'absolute',
           bottom: '24px',
-          left: '24px',
+          left: '360px',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          zIndex: 10,
+          zIndex: 30,
         }}
       >
         <button
           onClick={handleResetCamera}
+          className="glass-panel"
           style={{
-            backgroundColor: '#0f172a',
-            border: '1px solid #334155',
-            color: '#f8fafc',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            fontSize: '12px',
+            color: 'var(--text-primary)',
+            padding: '7px 12px',
+            borderRadius: '8px',
+            fontSize: '11px',
             fontWeight: 600,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            border: '1px solid var(--border-subtle)',
           }}
         >
-          <RotateCcw size={14} color="#38bdf8" /> Reset 3D View
+          <RotateCcw size={13} style={{ color: 'var(--accent-light)' }} />
+          <span>Reset 3D View</span>
         </button>
 
         <button
           onClick={handleTogglePitch}
+          className="glass-panel"
           style={{
-            backgroundColor: '#0f172a',
-            border: '1px solid #334155',
-            color: '#f8fafc',
-            padding: '8px 12px',
-            borderRadius: '6px',
-            fontSize: '12px',
+            color: 'var(--text-primary)',
+            padding: '7px 12px',
+            borderRadius: '8px',
+            fontSize: '11px',
             fontWeight: 600,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            border: '1px solid var(--border-subtle)',
           }}
         >
-          <Compass size={14} color="#38bdf8" /> 2D / 3D Tilt
+          <Compass size={13} style={{ color: 'var(--accent-light)' }} />
+          <span>2D / 3D Tilt</span>
         </button>
 
         {/* Style Switcher Selector */}
         <div
+          className="glass-panel"
           style={{
-            backgroundColor: '#0f172a',
-            border: '1px solid #334155',
-            borderRadius: '6px',
+            borderRadius: '8px',
             padding: '2px',
             display: 'flex',
             alignItems: 'center',
             gap: '2px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+            border: '1px solid var(--border-subtle)',
           }}
         >
           {[
             { id: 'dark', label: 'Dark', icon: Moon },
-            { id: 'satellite', label: 'Satellite 3D', icon: Globe },
+            { id: 'satellite', label: 'Satellite', icon: Globe },
             { id: 'liberty', label: 'Streets', icon: MapIcon },
             { id: 'bright', label: 'Light', icon: Sun },
           ].map((style) => {
@@ -1172,12 +1228,12 @@ export const MapContainer: React.FC<MapContainerProps> = ({
                 key={style.id}
                 onClick={() => handleStyleChange(style.id as any)}
                 style={{
-                  backgroundColor: isSelected ? 'rgba(56, 189, 248, 0.2)' : 'transparent',
-                  color: isSelected ? '#38bdf8' : '#94a3b8',
-                  border: isSelected ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid transparent',
-                  borderRadius: '4px',
-                  padding: '5px 10px',
-                  fontSize: '11px',
+                  backgroundColor: isSelected ? 'var(--accent)' : 'transparent',
+                  color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  padding: '5px 9px',
+                  fontSize: '10px',
                   fontWeight: isSelected ? 700 : 500,
                   cursor: 'pointer',
                   display: 'flex',
@@ -1192,108 +1248,139 @@ export const MapContainer: React.FC<MapContainerProps> = ({
             );
           })}
         </div>
+
+        {/* Daylight & Shadow Simulator Toggle */}
+        <button
+          onClick={() => setShowSunSimulator(!showSunSimulator)}
+          className="glass-panel"
+          style={{
+            backgroundColor: showSunSimulator ? 'var(--accent)' : undefined,
+            color: showSunSimulator ? '#ffffff' : 'var(--text-primary)',
+            padding: '7px 12px',
+            borderRadius: '8px',
+            fontSize: '11px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            border: '1px solid var(--border-subtle)',
+            transition: 'all 0.15s ease',
+          }}
+          title="Interactive Sun & Shadow Simulator"
+        >
+          <Sun size={13} style={{ color: showSunSimulator ? '#ffffff' : 'var(--accent-light)' }} />
+          <span>Daylight Cycle</span>
+        </button>
       </div>
 
-      {/* Active Mode Legend Overlay */}
+      {/* Daylight & 3D Shadow Simulation Widget */}
+      <SunSimulationWidget
+        isOpen={showSunSimulator}
+        onClose={() => setShowSunSimulator(false)}
+        onLightingChange={handleSolarLightingChange}
+      />
+
+      {/* Active Mode Legend Overlay (Top Right) */}
       <div
+        className="glass-panel"
         style={{
           position: 'absolute',
           top: '20px',
           right: '20px',
-          backgroundColor: 'rgba(15, 23, 42, 0.92)',
-          backdropFilter: 'blur(8px)',
-          border: '1px solid #334155',
-          borderRadius: '8px',
+          borderRadius: '10px',
           padding: '10px 14px',
-          zIndex: 10,
+          zIndex: 15,
           fontSize: '11px',
-          color: '#cbd5e1',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+          color: 'var(--text-secondary)',
+          border: '1px solid var(--border-subtle)',
+          boxShadow: 'var(--shadow-md)',
         }}
       >
         <div
           style={{
             fontWeight: 700,
-            color: '#f8fafc',
+            color: 'var(--text-primary)',
             marginBottom: '6px',
             textTransform: 'uppercase',
             letterSpacing: '0.5px',
+            fontSize: '10px',
           }}
         >
-          Mode: {mapMode.replace('_', ' ').toUpperCase()}
+          Layer: {mapMode.replace('_', ' ').toUpperCase()}
         </div>
         {mapMode === 'value_gap' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#22c55e' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--success)' }}
               ></span>
-              <span>Below Model Estimate (Underpriced)</span>
+              <span>Below Model (Underpriced)</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#38bdf8' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-light)' }}
               ></span>
-              <span>Near Model Estimate (Fair Value)</span>
+              <span>Near Model (Fair Value)</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--danger)' }}
               ></span>
-              <span>Above Model Estimate (Premium Ask)</span>
+              <span>Above Model (Premium Ask)</span>
             </div>
           </div>
         ) : mapMode === 'neighborhood' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '2px' }}>
+            <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginBottom: '2px' }}>
               Height = Median Price/m²
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#0284c7' }}></span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#0284c7' }}></span>
               <span>&lt; 12k MAD/m²</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#eab308' }}></span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#eab308' }}></span>
               <span>12k - 20k MAD/m²</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#ef4444' }}></span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: '#ef4444' }}></span>
               <span>&gt; 25k MAD/m²</span>
             </div>
           </div>
         ) : mapMode === 'activity' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <div style={{ fontSize: '10px', color: '#94a3b8', marginBottom: '2px' }}>
+            <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginBottom: '2px' }}>
               Height = Active Listing Volume
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: '#38bdf8' }}></span>
-              <span>Extruded Administrative Polygons</span>
+              <span style={{ width: '8px', height: '8px', borderRadius: '2px', backgroundColor: 'var(--accent-light)' }}></span>
+              <span>Extruded District Polygons</span>
             </div>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#38bdf8' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--accent-light)' }}
               ></span>
               <span>&lt; 10k MAD/m²</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#10b981' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--success)' }}
               ></span>
               <span>10k - 18k MAD/m²</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#f59e0b' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--warning)' }}
               ></span>
               <span>18k - 25k MAD/m²</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span
-                style={{ width: '10px', height: '10px', borderRadius: '50%', backgroundColor: '#ef4444' }}
+                style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--danger)' }}
               ></span>
               <span>&gt; 25k MAD/m²</span>
             </div>

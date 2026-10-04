@@ -365,50 +365,403 @@ def generate_property_listings(target_count: int = 1250):
         {"name": "Sarouty.ma", "prefix": "SAR", "url_base": "https://www.sarouty.ma/en/property/"},
         {"name": "Avito Real Estate", "prefix": "AVI", "url_base": "https://www.avito.ma/fr/marrakech/immobilier/"}
     ]
+
+    neighborhood_streets = {
+        "gueliz": [
+            "Avenue Mohammed V", "Boulevard Mohamed Zerktouni", "Rue de la Liberté",
+            "Rue Tariq Ibn Ziyad", "Rue Sourya", "Rue Ibn Aicha", "Avenue Hassan II",
+            "Place du 16 Novembre", "Rue Capitaine Arrigui", "Avenue Yacoub El Mansour",
+            "Boulevard Abdelkrim Al Khattabi", "Rue Oued El Makhazine"
+        ],
+        "hivernage": [
+            "Avenue Echouhada", "Rue Haroun Errachid", "Avenue Président Kennedy",
+            "Boulevard Menara", "Rue Oum Errabia", "Avenue de France",
+            "Rue El Kadi Ayad", "Rue des Banques", "Avenue Machaar Al Haram"
+        ],
+        "medina": [
+            "Derb Dabachi", "Riad Laarous", "Kaat Benahid", "Bab Doukkala",
+            "Rue Riad Zitoun El Jdid", "Derb El Cadi", "Rue Kennaria",
+            "Derb Jdid", "Rue Mouassine", "Bab Agnaou", "Derb Sidi Bouloukate",
+            "Derb Sidi Ahmed Soussi", "Rue de la Kasbah"
+        ],
+        "palmeraie": [
+            "Circuit de la Palmeraie", "Route de Fes", "Bab Atlas",
+            "Dar Tounsi", "Secteur Palmeraie Golf Palace", "Km 5 Route de Casablanca",
+            "Domaine des Palmiers", "Oasis Palmeraie Nord", "Allée des Palmiers"
+        ],
+        "agdal": [
+            "Boulevard Mohammed VI", "Zone Touristique Agdal", "Résidence Prestigia Golf",
+            "Avenue Jnane El Harti", "Boulevard Al Yarmouk Sud", "Domaine de l'Agdal",
+            "Avenue du 7 Mars", "Avenue des Remparts Sud"
+        ],
+        "targa": [
+            "Route de Targa", "Hay Sofia", "Résidence Jawhar", "Les Vergers de Targa",
+            "Avenue Al Massira Targa", "Hay Al Fadl", "Boulevard Allal Al Fassi Ouest",
+            "Domaine de Targa", "Rue des Orangers"
+        ],
+        "semlalia": [
+            "Boulevard Abdelkrim Al Khattabi", "Rue Prince Moulay Abdellah",
+            "Quartier Universitaire Semlalia", "Rue Ibn Batouta", "Avenue Ibn Sina",
+            "Rue Abou Bakr Seddik", "Rue Al Qadi Iyad"
+        ],
+        "massira": [
+            "Avenue Dakhla", "Boulevard Al Ahbash", "Massira I - Secteur A",
+            "Massira II - Secteur B", "Massira III - Boulevard Principal",
+            "Avenue Palestine", "Rue Al Mansour Ad Dahbi"
+        ],
+        "daoudiate": [
+            "Avenue Allal El Fassi", "Quartier CHU Mohammed VI", "Avenue Moulay Abdellah",
+            "Cité Universitaire Daoudiate", "Rue Al Yamama", "Boulevard Al Waha"
+        ],
+        "mhamid": [
+            "Boulevard Guemassa", "Mhamid 9", "Mhamid Al Janoub",
+            "Avenue Al Qods", "Résidence Al Mostakbal", "Avenue Abou Bakr As-Siddiq"
+        ],
+        "ennakhil": [
+            "Route de Fes Km 8", "Bab Atlas Ennakhil", "Secteur Amelkis Golf",
+            "Domaine Al Maaden", "Avenue Ennakhil Golf", "Oasis Bab Atlas"
+        ],
+        "menara": [
+            "Avenue de la Menara", "Hay Al Manar", "Boulevard Menara Ouest",
+            "Avenue Al Matar (Aéroport)", "Avenue Prince Moulay Rachid"
+        ],
+        "sidi_youssef": [
+            "Boulevard Al Yarmouk", "Bab Ghmat", "Derb Al Kadi",
+            "Avenue Sidi Youssef", "Quartier Al Mellah Est", "Derb Al Masjid"
+        ]
+    }
     
     records = []
     base_date = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    
-    # Allocation weights per neighborhood
-    weights = {
-        "gueliz": 220,
-        "hivernage": 140,
-        "medina": 180,
-        "palmeraie": 130,
-        "agdal": 110,
-        "targa": 95,
-        "semlalia": 85,
-        "massira": 90,
-        "daoudiate": 60,
-        "mhamid": 55,
-        "ennakhil": 45,
-        "menara": 40,
-        "sidi_youssef": 40
-    }
-    
     listing_idx = 1
+
+    # 1. Add High-Profile Signature Properties with Exact Landmark Coordinates
+    signature_properties = [
+        {
+            "title": "Penthouse Panoramique Atlas — Carré Eden, Gueliz",
+            "neighborhood_id": "gueliz",
+            "property_type": "Apartment",
+            "latitude": 31.6364,
+            "longitude": -8.0142,
+            "street_address": "42 Avenue Mohammed V, Gueliz",
+            "surface_m2": 185,
+            "price": 3850000,
+            "bedrooms": 3,
+            "bathrooms": 2,
+            "rooms": 5,
+            "floor": 5,
+            "total_floors": 5,
+            "elevator": True,
+            "parking": True,
+            "terrace": True,
+            "pool": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "New / Excellent",
+            "description": "Prestigieux penthouse d'exception de 185 m² situé en plein cœur de Guéliz sur l'Avenue Mohammed V. Terrasse panoramique de 45 m² offrant une vue imprenable sur l'Atlas et la Koutoubia. Finitions marbre et bois nobles, domotique intégrée."
+        },
+        {
+            "title": "Palais Oasis Privé — Circuit de la Palmeraie",
+            "neighborhood_id": "palmeraie",
+            "property_type": "Villa",
+            "latitude": 31.6685,
+            "longitude": -7.9582,
+            "street_address": "Km 6 Circuit de la Palmeraie",
+            "surface_m2": 720,
+            "price": 19500000,
+            "bedrooms": 6,
+            "bathrooms": 6,
+            "rooms": 10,
+            "floor": 0,
+            "total_floors": 2,
+            "elevator": False,
+            "parking": True,
+            "terrace": True,
+            "pool": True,
+            "garden": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "New / Excellent",
+            "description": "Domaine d'exception au cœur de la mythique Palmeraie de Marrakech. Villa de maître de 720 m² habitables sur un parc arboré de 12 000 m² avec palmiers centenaires, piscine à débordement de 25m, pool-house, hammam traditionnel et pavillon d'amis."
+        },
+        {
+            "title": "Riad Historique aux 5 Patios — Derb Dabachi, Medina",
+            "neighborhood_id": "medina",
+            "property_type": "Riad",
+            "latitude": 31.6268,
+            "longitude": -7.9862,
+            "street_address": "88 Derb Dabachi, Médina",
+            "surface_m2": 380,
+            "price": 5400000,
+            "bedrooms": 5,
+            "bathrooms": 5,
+            "rooms": 8,
+            "floor": 0,
+            "total_floors": 2,
+            "elevator": False,
+            "parking": False,
+            "terrace": True,
+            "pool": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "Renovated",
+            "description": "Véritable joyau architectural du 19ème siècle entièrement restauré dans les règles de l'art à 3 minutes à pied de Jemaa el-Fnaa. Patio arboré avec fontaine centrale en zelliges de Fès, bassin de nage, 5 suites d'hôtes climatisées et solarium avec vue 360°."
+        },
+        {
+            "title": "Prestige Résidence — Avenue Echouhada, Hivernage",
+            "neighborhood_id": "hivernage",
+            "property_type": "Apartment",
+            "latitude": 31.6225,
+            "longitude": -8.0175,
+            "street_address": "15 Avenue Echouhada, Hivernage",
+            "surface_m2": 155,
+            "price": 3650000,
+            "bedrooms": 3,
+            "bathrooms": 2,
+            "rooms": 4,
+            "floor": 3,
+            "total_floors": 4,
+            "elevator": True,
+            "parking": True,
+            "terrace": True,
+            "pool": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": False,
+            "condition": "New / Excellent",
+            "description": "Appartement de très haut standing dans l'une des adresses les plus cotées de l'Hivernage. Résidence sécurisée 24/7 avec concierge, piscine réservée aux résidents, double place de parking sous-sol et finitions italiennes de premier ordre."
+        },
+        {
+            "title": "Villa Contemporaine d'Architecte — Route de Targa",
+            "neighborhood_id": "targa",
+            "property_type": "Villa",
+            "latitude": 31.6485,
+            "longitude": -8.0510,
+            "street_address": "Avenue Al Massira, Hay Sofia, Targa",
+            "surface_m2": 420,
+            "price": 5900000,
+            "bedrooms": 4,
+            "bathrooms": 4,
+            "rooms": 7,
+            "floor": 0,
+            "total_floors": 2,
+            "elevator": False,
+            "parking": True,
+            "terrace": True,
+            "pool": True,
+            "garden": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": False,
+            "condition": "New / Excellent",
+            "description": "Superbe villa contemporaine aux lignes épurées et volumes généreux. Espace de réception ouvert de 120 m² avec baies vitrées toute hauteur donnant sur le jardin paysager et la piscine miroir chauffée. Suite parentale digne d'un palace."
+        },
+        {
+            "title": "Duplex Front de Golf — Prestigia Golf City, Agdal",
+            "neighborhood_id": "agdal",
+            "property_type": "Duplex",
+            "latitude": 31.6042,
+            "longitude": -7.9940,
+            "street_address": "Boulevard Mohammed VI, Prestigia, Agdal",
+            "surface_m2": 210,
+            "price": 3450000,
+            "bedrooms": 3,
+            "bathrooms": 3,
+            "rooms": 5,
+            "floor": 2,
+            "total_floors": 3,
+            "elevator": True,
+            "parking": True,
+            "terrace": True,
+            "pool": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "Good Condition",
+            "description": "Duplex d'exception en première ligne de golf 18 trous. Terrasse plein sud sans vis-à-vis face au parcours et aux cimes de l'Atlas. Accès direct club-house, restaurants, piscines lagon et sécurité maximale."
+        },
+        {
+            "title": "Plateau Bureaux Haut Standing — Carré Eden, Gueliz",
+            "neighborhood_id": "gueliz",
+            "property_type": "Commercial",
+            "latitude": 31.6358,
+            "longitude": -8.0102,
+            "street_address": "Rue Tariq Ibn Ziyad, Carré Eden, Gueliz",
+            "surface_m2": 240,
+            "price": 5200000,
+            "bedrooms": 0,
+            "bathrooms": 2,
+            "rooms": 6,
+            "floor": 2,
+            "total_floors": 5,
+            "elevator": True,
+            "parking": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": False,
+            "condition": "New / Excellent",
+            "description": "Plateau de bureaux professionnel aménagé haut de gamme au sein du pôle d'affaires Carré Eden. Grand open-space modulable, 4 bureaux de direction fermés, salle de réunion vitrée, câblage réseau fibre optique, climatisation réversible VRV."
+        },
+        {
+            "title": "Villa Domaine Amelkis — Golf & Country Club, Ennakhil",
+            "neighborhood_id": "ennakhil",
+            "property_type": "Villa",
+            "latitude": 31.6450,
+            "longitude": -7.9250,
+            "street_address": "Secteur Amelkis Golf Resort, Ennakhil",
+            "surface_m2": 550,
+            "price": 12800000,
+            "bedrooms": 5,
+            "bathrooms": 5,
+            "rooms": 8,
+            "floor": 0,
+            "total_floors": 2,
+            "elevator": False,
+            "parking": True,
+            "terrace": True,
+            "pool": True,
+            "garden": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "New / Excellent",
+            "description": "Élégante propriété de style hispano-mauresque dominant le parcours de golf d'Amelkis. Parc paysagé de 2 500 m² avec oliviers centenaires et roseraie, piscine à débordement de 18m, cheminée contemporaine et spa privatif."
+        },
+        {
+            "title": "Riad de Charme Maison d'Hôtes — Riad Laarous, Medina",
+            "neighborhood_id": "medina",
+            "property_type": "Riad",
+            "latitude": 31.6335,
+            "longitude": -7.9910,
+            "street_address": "45 Derb Sidi Ben Slimane, Riad Laarous",
+            "surface_m2": 310,
+            "price": 4650000,
+            "bedrooms": 6,
+            "bathrooms": 6,
+            "rooms": 9,
+            "floor": 0,
+            "total_floors": 2,
+            "elevator": False,
+            "parking": False,
+            "terrace": True,
+            "pool": True,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "Renovated",
+            "description": "Maison d'hôtes titrée en pleine exploitation avec excellente rentabilité locative. 6 chambres avec salles de bains privatives tadelakt, patio lumineux avec jacuzzi, toiture-terrasse aménagée avec tente caïdale."
+        },
+        {
+            "title": "Appartement de Prestige avec Balcon — Boulevard Zerktouni, Gueliz",
+            "neighborhood_id": "gueliz",
+            "property_type": "Apartment",
+            "latitude": 31.6338,
+            "longitude": -8.0110,
+            "street_address": "76 Boulevard Mohamed Zerktouni, Gueliz",
+            "surface_m2": 135,
+            "price": 2850000,
+            "bedrooms": 2,
+            "bathrooms": 2,
+            "rooms": 4,
+            "floor": 4,
+            "total_floors": 6,
+            "elevator": True,
+            "parking": True,
+            "terrace": False,
+            "balcony": True,
+            "pool": False,
+            "air_conditioning": True,
+            "security": True,
+            "furnished": True,
+            "condition": "New / Excellent",
+            "description": "Superbe appartement traversant baigné de lumière naturelle au 4ème étage d'un immeuble de standing avec ascenseur. Salon moderne avec parquet massif, cuisine américaine équipée, balcon filant sur le boulevard animé."
+        }
+    ]
+
+    for sig in signature_properties:
+        n_info = neighborhood_polys[sig["neighborhood_id"]][1]
+        src = sources[listing_idx % len(sources)]
+        prop_id = f"MAR-{src['prefix']}-{listing_idx:05d}"
+        days_offset = random.randint(10, 500)
+        pub_date = base_date + timedelta(days=days_offset, hours=random.randint(8, 18), minutes=random.randint(0, 59))
+        ppm2 = round(sig["price"] / sig["surface_m2"], 2)
+
+        record = {
+            "property_id": prop_id,
+            "title": sig["title"],
+            "street_address": sig["street_address"],
+            "source": src["name"],
+            "listing_url": f"{src['url_base']}{prop_id.lower()}",
+            "published_at": pub_date.strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "city": "Marrakech",
+            "neighborhood": n_info["name"],
+            "neighborhood_id": sig["neighborhood_id"],
+            "property_type": sig["property_type"],
+            "transaction_type": "Sale",
+            "latitude": sig["latitude"],
+            "longitude": sig["longitude"],
+            "price": sig["price"],
+            "currency": "MAD",
+            "surface_m2": sig["surface_m2"],
+            "price_per_m2": ppm2,
+            "bedrooms": sig["bedrooms"],
+            "bathrooms": sig["bathrooms"],
+            "rooms": sig["rooms"],
+            "floor": sig["floor"],
+            "total_floors": sig["total_floors"],
+            "building_age": 2 if sig["property_type"] != "Riad" else 85,
+            "furnished": sig.get("furnished", True),
+            "parking": sig.get("parking", True),
+            "elevator": sig.get("elevator", True),
+            "pool": sig.get("pool", True),
+            "garden": sig.get("garden", False),
+            "terrace": sig.get("terrace", True),
+            "balcony": sig.get("balcony", False),
+            "air_conditioning": sig.get("air_conditioning", True),
+            "security": sig.get("security", True),
+            "condition": sig["condition"],
+            "description": sig["description"]
+        }
+        records.append(record)
+        listing_idx += 1
+
+    # 2. Rich Distribution per Neighborhood (Target: ~1,650 properties total)
+    weights = {
+        "gueliz": 260,
+        "hivernage": 170,
+        "medina": 230,
+        "palmeraie": 170,
+        "agdal": 140,
+        "targa": 130,
+        "semlalia": 110,
+        "massira": 120,
+        "daoudiate": 80,
+        "mhamid": 75,
+        "ennakhil": 70,
+        "menara": 65,
+        "sidi_youssef": 50
+    }
     
     for n_id, count in weights.items():
         poly, n_info = neighborhood_polys[n_id]
         min_ppm2, max_ppm2 = n_info["avg_price_per_m2_range"]
+        street_pool = neighborhood_streets.get(n_id, ["Avenue Principale", "Rue Centrale"])
         
         for _ in range(count):
             lon, lat = sample_point_in_polygon(poly)
             
-            # Select property type matching neighborhood
             compatible_types = [pt for pt in property_types if n_id in pt["types_in"]]
             if not compatible_types:
                 compatible_types = property_types
             pt_cfg = random.choices(compatible_types, weights=[pt["prob"] for pt in compatible_types])[0]
             p_type = pt_cfg["type"]
             
-            # Surface area with log-normal tendency
             surface = int(random.triangular(pt_cfg["min_surf"], pt_cfg["max_surf"], (pt_cfg["min_surf"] + pt_cfg["max_surf"]) / 2.2))
-            
-            # Price per m2 influenced by neighborhood tier and amenities
             base_ppm2 = random.uniform(min_ppm2, max_ppm2)
             
-            # Amenities
             has_pool = random.random() < (0.85 if p_type in ["Villa", "Riad"] else (0.40 if n_id in ["hivernage", "agdal"] else 0.10))
             has_elevator = random.random() < (0.75 if p_type in ["Apartment", "Duplex"] and n_id in ["gueliz", "hivernage", "semlalia"] else 0.25)
             has_parking = random.random() < (0.85 if p_type in ["Villa", "Duplex"] else 0.55)
@@ -419,7 +772,6 @@ def generate_property_listings(target_count: int = 1250):
             has_security = random.random() < (0.75 if n_id in ["hivernage", "palmeraie", "agdal"] else 0.35)
             is_furnished = random.random() < (0.60 if n_id in ["hivernage", "gueliz"] else 0.30)
             
-            # Premium adjustments to price/m2
             premium = 1.0
             if has_pool: premium += 0.08
             if has_terrace or has_garden: premium += 0.05
@@ -430,7 +782,6 @@ def generate_property_listings(target_count: int = 1250):
             final_ppm2 = int(base_ppm2 * premium)
             total_price = int(surface * final_ppm2)
             
-            # Bedroom and bathroom counts
             if p_type == "Apartment":
                 bedrooms = 1 if surface < 60 else (2 if surface < 100 else (3 if surface < 140 else 4))
                 bathrooms = 1 if bedrooms <= 2 else (2 if bedrooms == 3 else 3)
@@ -456,15 +807,35 @@ def generate_property_listings(target_count: int = 1250):
                 floor = random.randint(1, 4)
                 total_floors = 4
                 
-            # Publication timestamp between Jan 2024 and Dec 2025
             days_offset = random.randint(0, 700)
             pub_date = base_date + timedelta(days=days_offset, hours=random.randint(8, 18), minutes=random.randint(0, 59))
             
             src = random.choice(sources)
             prop_id = f"MAR-{src['prefix']}-{listing_idx:05d}"
+
+            # Real street & title generation
+            street = random.choice(street_pool)
+            street_number = random.randint(2, 220)
+            street_address = f"{street_number} {street}, {n_info['name']}"
+
+            # Realistic marketing title
+            features_adj = ["Rénové", "Haut Standing", "Moderne", "Lumineux", "Spacieux", "de Charme", "Contemporain"]
+            adj = random.choice(features_adj)
+            if p_type == "Apartment":
+                title = f"Appartement {bedrooms} Ch. {adj} — {street}"
+            elif p_type == "Villa":
+                title = f"Villa {adj} avec Jardin & Piscine — {street}"
+            elif p_type == "Riad":
+                title = f"Riad {adj} au Cœur de la Médina — {street}"
+            elif p_type == "Duplex":
+                title = f"Duplex {adj} avec Terrasse — {street}"
+            else:
+                title = f"Local Commercial / Bureaux — {street}"
             
             record = {
                 "property_id": prop_id,
+                "title": title,
+                "street_address": street_address,
                 "source": src["name"],
                 "listing_url": f"{src['url_base']}{prop_id.lower()}",
                 "published_at": pub_date.strftime("%Y-%m-%d %H:%M:%S UTC"),
@@ -495,7 +866,7 @@ def generate_property_listings(target_count: int = 1250):
                 "air_conditioning": has_ac,
                 "security": has_security,
                 "condition": random.choice(["New / Excellent", "Good Condition", "Renovated", "Requires Refreshing"]),
-                "description": f"Charming {p_type.lower()} of {surface} m² located in prestigious {n_info['name']}, Marrakech. Features {bedrooms} bedrooms, {bathrooms} bathrooms, refined Moroccan craftsmanship with modern amenities."
+                "description": f"Charming {p_type.lower()} of {surface} m² located in prestigious {n_info['name']} on {street}, Marrakech. Features {bedrooms} bedrooms, {bathrooms} bathrooms, refined Moroccan craftsmanship with modern amenities."
             }
             records.append(record)
             listing_idx += 1

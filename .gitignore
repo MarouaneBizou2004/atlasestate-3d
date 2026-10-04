@@ -57,3 +57,7 @@ Thumbs.db
 # Temporary data files (keep structure via .gitkeep)
 data/raw/*.tmp
 data/*.sqlite-journal
+
+# Scratch & Temporary Screenshots
+scratch/
+screenshot_*.png

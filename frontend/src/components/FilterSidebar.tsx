@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { Search, RotateCcw, SlidersHorizontal, Layers, X, ChevronRight } from 'lucide-react';
+import { 
+  RotateCcw, 
+  SlidersHorizontal, 
+  Layers, 
+  ChevronLeft, 
+  ChevronRight,
+  Flame,
+  Radio,
+  Building,
+  TrendingUp,
+  Sparkles,
+  Check
+} from 'lucide-react';
 import { MapMode } from '../types';
 
 interface FilterSidebarProps {
@@ -20,26 +32,23 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
   setMapMode,
   neighborhoodsList,
   totalMatches,
-  onSelectProperty,
-  allProperties = [],
 }) => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [activeTab, setActiveTab] = useState<'property' | 'location' | 'features'>('property');
 
   const propertyTypes = ['All', 'Apartment', 'Villa', 'Riad', 'Duplex', 'Commercial'];
   const bedroomOptions = ['Any', '1+', '2+', '3+', '4+', '5+'];
 
-  const mapModes: Array<{ id: MapMode; label: string; desc: string }> = [
-    { id: 'explorer', label: '1. Property Explorer', desc: 'Interactive property markers' },
-    { id: 'heatmap', label: '2. Price/m² Heatmap', desc: 'Continuous price density heatmap' },
-    { id: 'density', label: '3. Cluster Density', desc: 'High-density spatial clusters' },
-    { id: 'neighborhood', label: '4. Neighborhood 3D', desc: 'Extruded polygons by median price/m²' },
-    { id: 'activity', label: '5. Market Activity', desc: 'Extrusion by listing volume' },
-    { id: 'value_gap', label: '6. ML Value Gap', desc: 'Over/underpriced relative to model' },
+  const mapModes: Array<{ id: MapMode; label: string; desc: string; icon: any }> = [
+    { id: 'explorer', label: '3D Explorer', desc: 'Interactive property markers', icon: Building },
+    { id: 'heatmap', label: 'Price Heatmap', desc: 'Price/m² density raster', icon: Flame },
+    { id: 'density', label: 'Cluster Density', desc: 'Clustered property counts', icon: Radio },
+    { id: 'neighborhood', label: 'District 3D', desc: 'Extruded by median price/m²', icon: Building },
+    { id: 'activity', label: 'Listing Volume', desc: 'Extruded by listing count', icon: TrendingUp },
+    { id: 'value_gap', label: 'ML Value Gap', desc: 'Under/overpriced vs model', icon: Sparkles },
   ];
 
   const handleReset = () => {
-    setSearchQuery('');
     setFilters({
       search: '',
       neighborhood: 'all',
@@ -58,143 +67,161 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
     });
   };
 
-  // Autocomplete matching properties
-  const searchMatches = searchQuery.trim().length >= 2 && allProperties.length > 0
-    ? allProperties.filter((p: any) => {
-        const q = searchQuery.toLowerCase();
-        return (
-          (p.property_id && p.property_id.toLowerCase().includes(q)) ||
-          (p.neighborhood && p.neighborhood.toLowerCase().includes(q)) ||
-          (p.property_type && p.property_type.toLowerCase().includes(q)) ||
-          (p.title && p.title.toLowerCase().includes(q))
-        );
-      }).slice(0, 6)
-    : [];
+  const amenities = [
+    { id: 'has_pool', label: 'Private Pool' },
+    { id: 'has_parking', label: 'Parking Garage' },
+    { id: 'has_elevator', label: 'Elevator' },
+    { id: 'has_terrace', label: 'Terrace' },
+    { id: 'has_garden', label: 'Private Garden' },
+  ];
 
-  const handleSelectSearchResult = (propId: string) => {
-    setShowSearchResults(false);
-    setSearchQuery('');
-    if (onSelectProperty) {
-      onSelectProperty(propId);
-    }
-  };
+  if (collapsed) {
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: '72px',
+          left: '20px',
+          zIndex: 25,
+        }}
+      >
+        <button
+          onClick={() => setCollapsed(false)}
+          className="glass-panel"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '10px 14px',
+            cursor: 'pointer',
+            color: 'var(--text-primary)',
+            fontSize: '12px',
+            fontWeight: 600,
+            borderRadius: '10px',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: 'var(--shadow-md)',
+          }}
+          title="Open Filters"
+        >
+          <SlidersHorizontal size={15} style={{ color: 'var(--accent-light)' }} />
+          <span>Filters ({totalMatches.toLocaleString()})</span>
+          <ChevronRight size={14} style={{ color: 'var(--text-muted)' }} />
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <aside style={{
-      width: '320px',
-      backgroundColor: '#0f172a',
-      borderRight: '1px solid #1e293b',
-      height: 'calc(100vh - 60px)',
-      overflowY: 'auto',
-      padding: '16px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '18px',
-      zIndex: 20,
-      position: 'relative'
-    }}>
-      {/* Search Input Box */}
-      <div style={{ position: 'relative' }}>
-        <div style={{
+    <aside
+      className="glass-panel"
+      style={{
+        position: 'absolute',
+        top: '72px',
+        left: '20px',
+        bottom: '24px',
+        width: '330px',
+        maxHeight: 'calc(100vh - 170px)',
+        zIndex: 25,
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '14px',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-lg)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Top Header */}
+      <div
+        style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: '#1e293b',
-          border: '1px solid #334155',
-          borderRadius: '8px',
-          padding: '8px 12px',
-          gap: '8px'
-        }}>
-          <Search size={15} color="#94a3b8" />
-          <input
-            type="text"
-            placeholder="Search ID, neighborhood, type..."
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setShowSearchResults(true);
-            }}
-            onFocus={() => setShowSearchResults(true)}
+          justifyContent: 'space-between',
+          background: 'var(--bg-surface-hover)',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <SlidersHorizontal size={15} style={{ color: 'var(--accent-light)' }} />
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Spatial Filters
+          </span>
+          <span
+            className="font-mono"
             style={{
-              background: 'none',
-              border: 'none',
-              color: '#f8fafc',
-              fontSize: '12px',
-              width: '100%',
-              outline: 'none'
+              fontSize: '11px',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              backgroundColor: 'rgba(2, 132, 199, 0.15)',
+              color: 'var(--accent-light)',
+              fontWeight: 600,
             }}
-          />
-          {searchQuery && (
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setShowSearchResults(false);
-              }}
-              style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}
-            >
-              <X size={14} />
-            </button>
-          )}
+          >
+            {totalMatches.toLocaleString()}
+          </span>
         </div>
 
-        {/* Live Search Autocomplete Dropdown */}
-        {showSearchResults && searchMatches.length > 0 && (
-          <div style={{
-            position: 'absolute',
-            top: '42px',
-            left: 0,
-            right: 0,
-            backgroundColor: '#0f172a',
-            border: '1px solid #38bdf8',
-            borderRadius: '8px',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.7)',
-            zIndex: 50,
-            overflow: 'hidden',
-            maxHeight: '260px',
-            overflowY: 'auto'
-          }}>
-            <div style={{ padding: '6px 10px', fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', borderBottom: '1px solid #1e293b', fontWeight: 700 }}>
-              Matching Properties ({searchMatches.length})
-            </div>
-            {searchMatches.map((match: any) => (
-              <div
-                key={match.property_id}
-                onClick={() => handleSelectSearchResult(match.property_id)}
-                style={{
-                  padding: '8px 10px',
-                  borderBottom: '1px solid #1e293b',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'background-color 0.15s'
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#1e293b')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-              >
-                <div>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#f8fafc' }}>
-                    {match.property_type || 'Listing'} in {match.neighborhood}
-                  </div>
-                  <div style={{ fontSize: '10px', color: '#38bdf8', fontFamily: 'monospace' }}>
-                    {match.property_id} • {(match.price || 0).toLocaleString()} MAD
-                  </div>
-                </div>
-                <ChevronRight size={14} color="#94a3b8" />
-              </div>
-            ))}
-          </div>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <button
+            onClick={handleReset}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-muted)',
+              fontSize: '11px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '4px 6px',
+              borderRadius: '4px',
+            }}
+            title="Reset All Filters"
+          >
+            <RotateCcw size={12} />
+            <span>Reset</span>
+          </button>
+          <button
+            onClick={() => setCollapsed(true)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              display: 'flex',
+              padding: '4px',
+            }}
+            title="Collapse Sidebar"
+          >
+            <ChevronLeft size={16} />
+          </button>
+        </div>
       </div>
 
-      {/* 3D Visualization Modes */}
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-          <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Layers size={13} color="#38bdf8" /> 3D Map Modes
-          </span>
-          <span style={{ fontSize: '11px', color: '#38bdf8', fontWeight: 600 }}>Active</span>
+      {/* 3D Map Modes Strip */}
+      <div
+        style={{
+          padding: '10px 14px',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}
+      >
+        <div
+          style={{
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            letterSpacing: '0.6px',
+            color: 'var(--text-muted)',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            marginBottom: '8px',
+          }}
+        >
+          <Layers size={12} style={{ color: 'var(--accent-light)' }} />
+          <span>3D Visualization Layer</span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
           {mapModes.map((m) => {
             const isSelected = mapMode === m.id;
             return (
@@ -202,243 +229,350 @@ export const FilterSidebar: React.FC<FilterSidebarProps> = ({
                 key={m.id}
                 onClick={() => setMapMode(m.id)}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'flex-start',
-                  padding: '8px 10px',
+                  padding: '6px 4px',
                   borderRadius: '6px',
-                  backgroundColor: isSelected ? '#1e293b' : 'transparent',
-                  border: isSelected ? '1px solid #38bdf8' : '1px solid #1e293b',
-                  color: isSelected ? '#f8fafc' : '#94a3b8',
+                  fontSize: '10px',
+                  fontWeight: isSelected ? 700 : 500,
+                  backgroundColor: isSelected ? 'var(--accent)' : 'var(--bg-surface-hover)',
+                  color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                  border: isSelected ? '1px solid var(--accent-light)' : '1px solid var(--border-subtle)',
                   cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.15s'
+                  textAlign: 'center',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  transition: 'all 0.12s ease',
+                }}
+                title={m.desc}
+              >
+                {m.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Filter Tabs Navigation */}
+      <div
+        style={{
+          display: 'flex',
+          borderBottom: '1px solid var(--border-subtle)',
+          padding: '4px 10px',
+          gap: '4px',
+          background: 'var(--bg-surface-hover)',
+        }}
+      >
+        {[
+          { id: 'property', label: 'Property' },
+          { id: 'location', label: 'Location' },
+          { id: 'features', label: 'Features & ML' },
+        ].map((tab) => {
+          const isSelected = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              style={{
+                flex: 1,
+                padding: '6px 0',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: isSelected ? 600 : 500,
+                color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)',
+                backgroundColor: isSelected ? 'var(--bg-surface-elevated)' : 'transparent',
+                cursor: 'pointer',
+                transition: 'all 0.12s ease',
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Tab Contents (Scrollable) */}
+      <div
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          padding: '14px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '16px',
+        }}
+      >
+        {activeTab === 'property' && (
+          <>
+            {/* Property Type Grid */}
+            <div>
+              <label
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'block',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
                 }}
               >
-                <span style={{ fontSize: '12px', fontWeight: isSelected ? 600 : 500, color: isSelected ? '#38bdf8' : '#cbd5e1' }}>
-                  {m.label}
+                Property Typology
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '5px' }}>
+                {propertyTypes.map((pt) => {
+                  const isSelected = filters.property_type.toLowerCase() === pt.toLowerCase();
+                  return (
+                    <button
+                      key={pt}
+                      onClick={() =>
+                        setFilters((prev: any) => ({
+                          ...prev,
+                          property_type: isSelected && pt.toLowerCase() !== 'all' ? 'all' : pt.toLowerCase(),
+                        }))
+                      }
+                      style={{
+                        padding: '7px 0',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: isSelected ? 600 : 500,
+                        backgroundColor: isSelected ? 'var(--accent)' : 'var(--bg-surface-hover)',
+                        color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                        border: isSelected ? '1px solid var(--accent-light)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.12s ease',
+                      }}
+                    >
+                      {pt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Price Slider */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+                  Max Price
                 </span>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>{m.desc}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <hr style={{ borderColor: '#1e293b', borderWidth: '0.5px' }} />
-
-      {/* Filter Header & Reset */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#94a3b8', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <SlidersHorizontal size={13} color="#38bdf8" /> Filters ({totalMatches.toLocaleString()} found)
-        </span>
-        <button
-          onClick={handleReset}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#64748b',
-            fontSize: '11px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-          }}
-          title="Reset All Filters"
-        >
-          <RotateCcw size={11} /> Reset
-        </button>
-      </div>
-
-      {/* Neighborhood Dropdown */}
-      <div>
-        <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500, display: 'block', marginBottom: '6px' }}>
-          Neighborhood / Zone
-        </label>
-        <select
-          value={filters.neighborhood}
-          onChange={(e) => setFilters((prev: any) => ({ ...prev, neighborhood: e.target.value }))}
-          style={{
-            width: '100%',
-            padding: '8px 10px',
-            backgroundColor: '#1e293b',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-            color: '#f8fafc',
-            fontSize: '12px',
-            outline: 'none'
-          }}
-        >
-          <option value="all">All Marrakech Neighborhoods (13)</option>
-          {neighborhoodsList.map((n) => (
-            <option key={n} value={n}>{n}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Property Type Pills */}
-      <div>
-        <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500, display: 'block', marginBottom: '6px' }}>
-          Property Type
-        </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
-          {propertyTypes.map((pt) => {
-            const isSelected = filters.property_type.toLowerCase() === pt.toLowerCase();
-            return (
-              <button
-                key={pt}
-                onClick={() => setFilters((prev: any) => ({
-                  ...prev,
-                  property_type: isSelected && pt.toLowerCase() !== 'all' ? 'all' : pt.toLowerCase()
-                }))}
-                style={{
-                  padding: '6px 0',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: isSelected ? 600 : 500,
-                  backgroundColor: isSelected ? '#2563eb' : '#1e293b',
-                  color: isSelected ? '#ffffff' : '#94a3b8',
-                  border: isSelected ? '1px solid #3b82f6' : '1px solid #334155',
-                  cursor: 'pointer'
-                }}
-              >
-                {pt}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Price Range Slider */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500 }}>Max Price</span>
-          <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>
-            {(filters.max_price / 1000000).toFixed(1)}M MAD
-          </span>
-        </div>
-        <input
-          type="range"
-          min={500000}
-          max={20000000}
-          step={250000}
-          value={filters.max_price}
-          onChange={(e) => setFilters((prev: any) => ({ ...prev, max_price: Number(e.target.value) }))}
-          style={{ width: '100%', accentColor: '#2563eb', cursor: 'pointer' }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748b' }}>
-          <span>0.5M</span>
-          <span>10M</span>
-          <span>20M+</span>
-        </div>
-      </div>
-
-      {/* Surface Area Slider */}
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500 }}>Max Surface</span>
-          <span style={{ fontSize: '12px', color: '#38bdf8', fontWeight: 600 }}>
-            {filters.max_surface} m²
-          </span>
-        </div>
-        <input
-          type="range"
-          min={40}
-          max={800}
-          step={20}
-          value={filters.max_surface}
-          onChange={(e) => setFilters((prev: any) => ({ ...prev, max_surface: Number(e.target.value) }))}
-          style={{ width: '100%', accentColor: '#2563eb', cursor: 'pointer' }}
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: '#64748b' }}>
-          <span>40 m²</span>
-          <span>400 m²</span>
-          <span>800 m²</span>
-        </div>
-      </div>
-
-      {/* Bedrooms Filter */}
-      <div>
-        <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500, display: 'block', marginBottom: '6px' }}>
-          Min Bedrooms
-        </label>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          {bedroomOptions.map((opt, i) => {
-            const val = i === 0 ? 'any' : String(i);
-            const isSelected = String(filters.bedrooms) === val;
-            return (
-              <button
-                key={opt}
-                onClick={() => setFilters((prev: any) => ({ ...prev, bedrooms: val }))}
-                style={{
-                  flex: 1,
-                  padding: '5px 0',
-                  borderRadius: '4px',
-                  fontSize: '11px',
-                  fontWeight: isSelected ? 600 : 500,
-                  backgroundColor: isSelected ? '#2563eb' : '#1e293b',
-                  color: isSelected ? '#ffffff' : '#94a3b8',
-                  border: isSelected ? '1px solid #3b82f6' : '1px solid #334155',
-                  cursor: 'pointer'
-                }}
-              >
-                {opt}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Amenities Checkboxes */}
-      <div>
-        <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500, display: 'block', marginBottom: '8px' }}>
-          Key Amenities
-        </label>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', fontSize: '11px', color: '#94a3b8' }}>
-          {[
-            { id: 'has_pool', label: 'Pool' },
-            { id: 'has_parking', label: 'Parking' },
-            { id: 'has_elevator', label: 'Elevator' },
-            { id: 'has_terrace', label: 'Terrace' },
-            { id: 'has_garden', label: 'Garden' }
-          ].map((am) => (
-            <label key={am.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <span className="font-mono" style={{ fontSize: '12px', color: 'var(--accent-light)', fontWeight: 600 }}>
+                  {(filters.max_price / 1000000).toFixed(1)}M MAD
+                </span>
+              </div>
               <input
-                type="checkbox"
-                checked={Boolean(filters[am.id])}
-                onChange={(e) => setFilters((prev: any) => ({ ...prev, [am.id]: e.target.checked }))}
-                style={{ accentColor: '#2563eb' }}
+                type="range"
+                min={500000}
+                max={20000000}
+                step={250000}
+                value={filters.max_price}
+                onChange={(e) => setFilters((prev: any) => ({ ...prev, max_price: Number(e.target.value) }))}
+                style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }}
               />
-              <span>{am.label}</span>
-            </label>
-          ))}
-        </div>
-      </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-muted)' }}>
+                <span>0.5M MAD</span>
+                <span>10M MAD</span>
+                <span>20M+ MAD</span>
+              </div>
+            </div>
 
-      {/* Valuation Status */}
-      <div>
-        <label style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 500, display: 'block', marginBottom: '6px' }}>
-          ML Value Gap Status
-        </label>
-        <select
-          value={filters.valuation_status}
-          onChange={(e) => setFilters((prev: any) => ({ ...prev, valuation_status: e.target.value }))}
-          style={{
-            width: '100%',
-            padding: '8px 10px',
-            backgroundColor: '#1e293b',
-            border: '1px solid #334155',
-            borderRadius: '6px',
-            color: '#f8fafc',
-            fontSize: '12px',
-            outline: 'none'
-          }}
-        >
-          <option value="all">All Valuation Tiers</option>
-          <option value="Below model estimate">Below model estimate (&lt; -7.5%)</option>
-          <option value="Near model estimate">Near model estimate (Fair)</option>
-          <option value="Above model estimate">Above model estimate (&gt; +7.5%)</option>
-        </select>
+            {/* Surface Area Slider */}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', textTransform: 'uppercase' }}>
+                  Max Surface
+                </span>
+                <span className="font-mono" style={{ fontSize: '12px', color: 'var(--accent-light)', fontWeight: 600 }}>
+                  {filters.max_surface} m²
+                </span>
+              </div>
+              <input
+                type="range"
+                min={40}
+                max={800}
+                step={20}
+                value={filters.max_surface}
+                onChange={(e) => setFilters((prev: any) => ({ ...prev, max_surface: Number(e.target.value) }))}
+                style={{ width: '100%', accentColor: 'var(--accent)', cursor: 'pointer' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10px', color: 'var(--text-muted)' }}>
+                <span>40 m²</span>
+                <span>400 m²</span>
+                <span>800 m²</span>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'location' && (
+          <>
+            {/* Neighborhood Dropdown */}
+            <div>
+              <label
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'block',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                }}
+              >
+                District / Administrative Zone
+              </label>
+              <select
+                value={filters.neighborhood}
+                onChange={(e) => setFilters((prev: any) => ({ ...prev, neighborhood: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: '8px',
+                  color: 'var(--text-primary)',
+                  fontSize: '12px',
+                  outline: 'none',
+                }}
+              >
+                <option value="all">All Marrakech Districts (13)</option>
+                {neighborhoodsList.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Bedrooms Pill Selector */}
+            <div>
+              <label
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'block',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                }}
+              >
+                Minimum Bedrooms
+              </label>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                {bedroomOptions.map((opt, i) => {
+                  const val = i === 0 ? 'any' : String(i);
+                  const isSelected = String(filters.bedrooms) === val;
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => setFilters((prev: any) => ({ ...prev, bedrooms: val }))}
+                      style={{
+                        flex: 1,
+                        padding: '6px 0',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: isSelected ? 600 : 500,
+                        backgroundColor: isSelected ? 'var(--accent)' : 'var(--bg-surface-hover)',
+                        color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                        border: isSelected ? '1px solid var(--accent-light)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.12s ease',
+                      }}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </>
+        )}
+
+        {activeTab === 'features' && (
+          <>
+            {/* Amenities Toggle Chips */}
+            <div>
+              <label
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'block',
+                  marginBottom: '8px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                }}
+              >
+                Premium Amenities
+              </label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {amenities.map((am) => {
+                  const isActive = Boolean(filters[am.id]);
+                  return (
+                    <button
+                      key={am.id}
+                      onClick={() => setFilters((prev: any) => ({ ...prev, [am.id]: !isActive }))}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 10px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: isActive ? 600 : 500,
+                        backgroundColor: isActive ? 'rgba(2, 132, 199, 0.2)' : 'var(--bg-surface-hover)',
+                        color: isActive ? 'var(--accent-light)' : 'var(--text-secondary)',
+                        border: isActive ? '1px solid var(--accent-light)' : '1px solid var(--border-subtle)',
+                        cursor: 'pointer',
+                        transition: 'all 0.12s ease',
+                      }}
+                    >
+                      {isActive && <Check size={12} />}
+                      <span>{am.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* ML Value Gap Status Filter */}
+            <div>
+              <label
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  display: 'block',
+                  marginBottom: '6px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.4px',
+                }}
+              >
+                ML Model Valuation Tier
+              </label>
+              <select
+                value={filters.valuation_status}
+                onChange={(e) => setFilters((prev: any) => ({ ...prev, valuation_status: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '9px 12px',
+                  backgroundColor: 'var(--bg-surface-elevated)',
+                  border: '1px solid var(--border-default)',
+                  borderRadius: '8px',
+                  color: 'var(--text-primary)',
+                  fontSize: '12px',
+                  outline: 'none',
+                }}
+              >
+                <option value="all">All Valuation Tiers</option>
+                <option value="Below model estimate">Below model estimate (&lt; -7.5%)</option>
+                <option value="Near model estimate">Near model estimate (Fair Value)</option>
+                <option value="Above model estimate">Above model estimate (&gt; +7.5%)</option>
+              </select>
+            </div>
+          </>
+        )}
       </div>
     </aside>
   );

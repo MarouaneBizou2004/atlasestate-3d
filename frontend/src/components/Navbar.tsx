@@ -1,73 +1,136 @@
 import React from 'react';
-import { Compass, BarChart3, Building2, Calculator, ShieldCheck, Info, Download, Layers } from 'lucide-react';
+import { 
+  Compass, 
+  BarChart3, 
+  Building2, 
+  Calculator, 
+  ShieldCheck, 
+  Layers, 
+  Download, 
+  Sun, 
+  Moon, 
+  Bookmark,
+  Search,
+  Sparkles
+} from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   totalCount: number;
   onOpenExport: () => void;
+  favoritesCount?: number;
+  onOpenFavorites?: () => void;
+  onOpenSearch?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, totalCount, onOpenExport }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  activeTab,
+  setActiveTab,
+  totalCount,
+  onOpenExport,
+  favoritesCount = 0,
+  onOpenFavorites,
+  onOpenSearch,
+}) => {
+  const { theme, toggleTheme } = useTheme();
+
   const navItems = [
     { id: 'explore', label: '3D Explorer', icon: Compass },
     { id: 'market', label: 'Market Analytics', icon: BarChart3 },
     { id: 'neighborhoods', label: 'Neighborhoods', icon: Building2 },
     { id: 'valuation', label: 'ML Valuation', icon: Calculator },
     { id: 'quality', label: 'Data Quality', icon: ShieldCheck },
-    { id: 'about', label: 'Architecture', icon: Info },
+    { id: 'about', label: 'Architecture', icon: Layers },
   ];
 
   return (
-    <header style={{
-      height: '60px',
-      backgroundColor: '#0f172a',
-      borderBottom: '1px solid #1e293b',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0 20px',
-      zIndex: 50,
-      position: 'relative'
-    }}>
+    <header
+      className="glass-panel"
+      style={{
+        height: '56px',
+        margin: '8px 12px 0 12px',
+        padding: '0 16px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        borderRadius: '12px',
+        zIndex: 50,
+        position: 'relative',
+        border: '1px solid var(--border-subtle)',
+        boxShadow: 'var(--shadow-md)',
+      }}
+    >
       {/* Brand & City Badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <div style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '8px',
-          backgroundColor: '#2563eb',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#ffffff',
-          boxShadow: '0 0 15px rgba(37, 99, 235, 0.4)'
-        }}>
-          <Layers size={22} />
+        <div
+          style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '8px',
+            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#ffffff',
+            boxShadow: '0 0 16px rgba(2, 132, 199, 0.45)',
+          }}
+        >
+          <Sparkles size={18} />
         </div>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontWeight: 700, fontSize: '17px', letterSpacing: '-0.3px', color: '#f8fafc' }}>
-              AtlasEstate <span style={{ color: '#38bdf8' }}>3D</span>
+            <span
+              style={{
+                fontWeight: 700,
+                fontSize: '15px',
+                letterSpacing: '-0.3px',
+                color: 'var(--text-primary)',
+              }}
+            >
+              ATLAS<span style={{ color: 'var(--accent-light)' }}>ESTATE</span> 3D
             </span>
-            <span style={{
-              fontSize: '11px',
-              padding: '2px 8px',
-              borderRadius: '12px',
-              backgroundColor: '#1e293b',
-              color: '#38bdf8',
-              border: '1px solid #334155',
-              fontWeight: 600
-            }}>
-              Marrakech, MA
+            <span
+              className="glass-pill"
+              style={{
+                fontSize: '10px',
+                padding: '2px 8px',
+                color: 'var(--accent-light)',
+                border: '1px solid var(--border-default)',
+                fontWeight: 600,
+                letterSpacing: '0.4px',
+                textTransform: 'uppercase',
+              }}
+            >
+              Marrakech
             </span>
           </div>
-          <span style={{ fontSize: '11px', color: '#94a3b8' }}>Geospatial Real Estate Intelligence</span>
+          <div
+            style={{
+              fontSize: '10px',
+              color: 'var(--text-muted)',
+              letterSpacing: '0.2px',
+              fontWeight: 500,
+            }}
+          >
+            3D REAL ESTATE INTELLIGENCE PLATFORM
+          </div>
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+      {/* Navigation Segment Tabs */}
+      <nav
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '4px',
+          background: 'var(--bg-surface-hover)',
+          padding: '3px',
+          borderRadius: '10px',
+          border: '1px solid var(--border-subtle)',
+        }}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -78,61 +141,163 @@ export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab, totalCo
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                padding: '8px 14px',
-                borderRadius: '6px',
-                fontSize: '13px',
+                gap: '7px',
+                padding: '6px 12px',
+                borderRadius: '7px',
+                fontSize: '12px',
                 fontWeight: isActive ? 600 : 500,
-                color: isActive ? '#38bdf8' : '#94a3b8',
-                backgroundColor: isActive ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
-                border: isActive ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
+                color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
+                backgroundColor: isActive ? 'var(--bg-surface-elevated)' : 'transparent',
+                border: isActive ? '1px solid var(--border-default)' : '1px solid transparent',
+                boxShadow: isActive ? 'var(--shadow-sm)' : 'none',
                 cursor: 'pointer',
-                transition: 'all 0.15s ease'
+                transition: 'all 0.15s ease',
               }}
             >
-              <Icon size={16} />
-              {item.label}
+              <Icon
+                size={14}
+                style={{
+                  color: isActive ? 'var(--accent-light)' : 'var(--text-muted)',
+                }}
+              />
+              <span>{item.label}</span>
             </button>
           );
         })}
       </nav>
 
-      {/* Live Badge & Export Action */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{
-          padding: '6px 12px',
-          borderRadius: '6px',
-          backgroundColor: '#1e293b',
-          border: '1px solid #334155',
-          fontSize: '12px',
-          color: '#cbd5e1',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }}>
-          <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981', display: 'inline-block' }}></span>
-          <span>{totalCount.toLocaleString()} Verified Listings</span>
+      {/* Right Controls: Inventory, Search, Favorites, Theme, Export */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* Verified Inventory Indicator */}
+        <div
+          className="glass-pill"
+          style={{
+            padding: '5px 10px',
+            fontSize: '11px',
+            color: 'var(--text-secondary)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            fontWeight: 500,
+          }}
+        >
+          <span
+            style={{
+              width: '7px',
+              height: '7px',
+              borderRadius: '50%',
+              backgroundColor: 'var(--success)',
+              display: 'inline-block',
+              boxShadow: '0 0 8px var(--success-glow)',
+            }}
+          />
+          <span className="font-mono">{totalCount.toLocaleString()}</span>
+          <span style={{ color: 'var(--text-muted)' }}>Listings</span>
         </div>
 
+        {/* Quick Search Shortcut Trigger (if provided) */}
+        {onOpenSearch && (
+          <button
+            onClick={onOpenSearch}
+            className="glass-pill"
+            style={{
+              padding: '5px 10px',
+              fontSize: '11px',
+              color: 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              border: '1px solid var(--border-subtle)',
+              background: 'transparent',
+            }}
+            title="Search districts, landmarks, properties (Ctrl+K)"
+          >
+            <Search size={13} style={{ color: 'var(--text-muted)' }} />
+            <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>Quick Search</span>
+            <kbd
+              style={{
+                background: 'var(--bg-surface-hover)',
+                border: '1px solid var(--border-subtle)',
+                borderRadius: '3px',
+                padding: '1px 4px',
+                fontSize: '9px',
+                fontFamily: 'monospace',
+                color: 'var(--text-muted)',
+              }}
+            >
+              /
+            </kbd>
+          </button>
+        )}
+
+        {/* Favorites Counter Button */}
+        {onOpenFavorites && (
+          <button
+            onClick={onOpenFavorites}
+            className="glass-pill"
+            style={{
+              padding: '5px 10px',
+              fontSize: '11px',
+              color: favoritesCount > 0 ? 'var(--accent-light)' : 'var(--text-secondary)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              border: favoritesCount > 0 ? '1px solid var(--accent)' : '1px solid var(--border-subtle)',
+              background: 'transparent',
+            }}
+            title="Saved Favorites"
+          >
+            <Bookmark size={13} fill={favoritesCount > 0 ? 'currentColor' : 'none'} />
+            <span className="font-mono">{favoritesCount}</span>
+          </button>
+        )}
+
+        {/* Theme Toggle (Dark / Light) */}
+        <button
+          onClick={toggleTheme}
+          className="glass-pill"
+          style={{
+            width: '32px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            border: '1px solid var(--border-subtle)',
+            background: 'transparent',
+            transition: 'color 0.15s ease',
+          }}
+          title={theme === 'dark' ? 'Switch to Light GIS Mode' : 'Switch to Dark Mode'}
+        >
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
+
+        {/* Export Data Button */}
         <button
           onClick={onOpenExport}
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
-            padding: '7px 14px',
-            borderRadius: '6px',
-            backgroundColor: '#2563eb',
+            padding: '6px 14px',
+            borderRadius: '8px',
+            backgroundColor: 'var(--accent)',
             color: '#ffffff',
             border: 'none',
             fontSize: '12px',
             fontWeight: 600,
             cursor: 'pointer',
-            transition: 'background-color 0.15s'
+            boxShadow: 'var(--shadow-sm)',
+            transition: 'background-color 0.15s ease',
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent-hover)')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--accent)')}
         >
-          <Download size={14} />
-          Export
+          <Download size={13} />
+          <span>Export</span>
         </button>
       </div>
     </header>

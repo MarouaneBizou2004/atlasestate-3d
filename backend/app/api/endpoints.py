@@ -225,11 +225,16 @@ def get_properties_geojson(
             },
             "properties": {
                 "property_id": row["property_id"],
+                "title": row.get("title", f"{row['property_type']} in {row['neighborhood']}"),
+                "street_address": row.get("street_address", f"{row['neighborhood']}, Marrakech"),
                 "price": int(row["price"]),
                 "price_per_m2": float(row["price_per_m2"]),
                 "surface_m2": int(row["surface_m2"]),
                 "bedrooms": int(row["bedrooms"]),
                 "bathrooms": int(row["bathrooms"]),
+                "rooms": int(row.get("rooms", int(row["bedrooms"]) + 2)),
+                "floor": int(row["floor"]) if pd.notna(row.get("floor")) else 0,
+                "total_floors": int(row["total_floors"]) if pd.notna(row.get("total_floors")) else 5,
                 "property_type": row["property_type"],
                 "neighborhood": row["neighborhood"],
                 "predicted_price": int(row.get("predicted_price", row["price"])),
@@ -237,7 +242,13 @@ def get_properties_geojson(
                 "valuation_status": row.get("valuation_status", "Near model estimate"),
                 "has_pool": bool(row.get("pool", False)),
                 "has_parking": bool(row.get("parking", False)),
-                "has_terrace": bool(row.get("terrace", False))
+                "has_elevator": bool(row.get("elevator", False)),
+                "has_terrace": bool(row.get("terrace", False)),
+                "has_garden": bool(row.get("garden", False)),
+                "has_balcony": bool(row.get("balcony", False)),
+                "has_air_conditioning": bool(row.get("air_conditioning", False)),
+                "has_security": bool(row.get("security", False)),
+                "is_furnished": bool(row.get("furnished", False))
             }
         })
         

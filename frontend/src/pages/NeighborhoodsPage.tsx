@@ -3,7 +3,7 @@ import { NeighborhoodStat } from '../types';
 import { fetchNeighborhoodStats } from '../services/api';
 import { 
   MapPin, Search, ArrowUpDown, Building, Home, 
-  ExternalLink, Layers, Sparkles, AlertCircle, RefreshCw 
+  ExternalLink, Sparkles, AlertCircle, RefreshCw, Compass
 } from 'lucide-react';
 
 interface Props {
@@ -58,10 +58,12 @@ export const NeighborhoodsPage: React.FC<Props> = ({ onSelectNeighborhood }) => 
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-dark-bg">
-        <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-8 h-8 text-sky-400 animate-spin" />
-          <p className="text-gray-400 font-mono text-sm">Loading administrative districts...</p>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-app)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <RefreshCw size={28} className="animate-spin" style={{ color: 'var(--accent-light)' }} />
+          <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+            Loading administrative districts...
+          </p>
         </div>
       </div>
     );
@@ -69,14 +71,24 @@ export const NeighborhoodsPage: React.FC<Props> = ({ onSelectNeighborhood }) => 
 
   if (error) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-dark-bg p-6">
-        <div className="bg-dark-card border border-rose-500/30 rounded-xl p-8 max-w-md text-center">
-          <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Failed to Load</h2>
-          <p className="text-gray-400 text-sm mb-6">{error}</p>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-app)', padding: '24px' }}>
+        <div className="glass-panel" style={{ maxWidth: '440px', padding: '32px', textAlign: 'center', border: '1px solid var(--danger)' }}>
+          <AlertCircle size={40} style={{ color: 'var(--danger)', margin: '0 auto 16px' }} />
+          <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+            Failed to Load
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>{error}</p>
           <button
             onClick={loadData}
-            className="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-lg text-sm font-semibold transition-colors"
+            style={{
+              padding: '8px 18px',
+              backgroundColor: 'var(--accent)',
+              color: '#ffffff',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
           >
             Retry
           </button>
@@ -86,207 +98,278 @@ export const NeighborhoodsPage: React.FC<Props> = ({ onSelectNeighborhood }) => 
   }
 
   return (
-    <div className="flex-1 bg-dark-bg overflow-y-auto px-6 py-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: 'var(--bg-app)',
+        overflowY: 'auto',
+        padding: '24px 32px',
+      }}
+    >
+      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid var(--border-subtle)',
+            paddingBottom: '20px',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
+        >
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-sky-500/10 text-sky-400 border border-sky-500/20">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  backgroundColor: 'rgba(2, 132, 199, 0.15)',
+                  color: 'var(--accent-light)',
+                  border: '1px solid var(--border-subtle)',
+                  fontWeight: 600,
+                }}
+              >
                 13 Administrative Districts
               </span>
-              <span className="text-xs text-gray-500 font-mono">OpenStreetMap Polygon Polygons</span>
+              <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                Official PostGIS Polygons
+              </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mt-1">
-              Marrakech Neighborhood Directory
+            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.4px' }}>
+              Marrakech District Intelligence Directory
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Detailed spatial metrics, listing density, and valuation profiles for all urban zones.
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              Detailed spatial boundaries, price-per-square-meter benchmarks, and one-click 3D exploration.
             </p>
           </div>
 
-          {/* Search bar */}
-          <div className="relative w-full md:w-72">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search district name..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-dark-card border border-gray-800 rounded-lg pl-9 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-sky-500 transition-colors"
-            />
+          {/* Search bar & Sort Controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div
+              className="glass-panel"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '6px 12px',
+                borderRadius: '8px',
+                width: '240px',
+              }}
+            >
+              <Search size={14} style={{ color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder="Search district..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  outline: 'none',
+                  color: 'var(--text-primary)',
+                  fontSize: '12px',
+                  width: '100%',
+                }}
+              />
+            </div>
+
+            <div
+              style={{
+                display: 'flex',
+                gap: '4px',
+                padding: '3px',
+                background: 'var(--bg-surface-hover)',
+                borderRadius: '8px',
+                border: '1px solid var(--border-subtle)',
+              }}
+            >
+              {[
+                { id: 'm2', label: 'Rate/m²' },
+                { id: 'price', label: 'Price' },
+                { id: 'listings', label: 'Units' },
+              ].map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => handleSort(s.id as any)}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    fontWeight: sortField === s.id ? 700 : 500,
+                    backgroundColor: sortField === s.id ? 'var(--accent)' : 'transparent',
+                    color: sortField === s.id ? '#ffffff' : 'var(--text-secondary)',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.12s ease',
+                  }}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Neighborhood Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '20px' }}>
           {filteredNeighborhoods.map((n) => {
             const isPremium = n.median_price_per_m2 > 17000;
             return (
-              <div 
+              <div
                 key={n.neighborhood}
-                className="bg-dark-card border border-gray-800 hover:border-sky-500/50 rounded-xl p-5 transition-all flex flex-col justify-between group"
+                className="glass-panel"
+                style={{
+                  padding: '20px',
+                  borderRadius: '14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transition: 'border-color 0.2s ease, transform 0.2s ease',
+                  border: '1px solid var(--border-subtle)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-active)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
               >
                 <div>
-                  <div className="flex items-start justify-between mb-3">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-bold text-white group-hover:text-sky-400 transition-colors">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
                           {n.neighborhood}
                         </h3>
                         {isPremium && (
-                          <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-mono font-medium rounded-full flex items-center gap-1">
-                            <Sparkles className="w-2.5 h-2.5" /> High Demand
+                          <span
+                            style={{
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                              color: 'var(--warning)',
+                              border: '1px solid var(--warning)',
+                              fontSize: '9px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                            }}
+                          >
+                            <Sparkles size={10} /> Prime
                           </span>
                         )}
                       </div>
-                      <span className="text-xs text-gray-400 font-mono">
-                        Marrakech Wilaya Zone
-                      </span>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        Marrakech Wilaya Sector
+                      </div>
                     </div>
-                    <div className="w-8 h-8 rounded-lg bg-dark-surface border border-gray-800 flex items-center justify-center text-gray-400 group-hover:text-sky-400 group-hover:border-sky-500/30 transition-colors">
-                      <MapPin className="w-4 h-4" />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3 my-4 p-3 bg-dark-surface/60 rounded-lg border border-gray-800/60 font-mono text-xs">
-                    <div>
-                      <div className="text-gray-500 text-[10px] uppercase">Median Price / m²</div>
-                      <div className="text-white font-semibold text-sm mt-0.5">
-                        {n.median_price_per_m2.toLocaleString()} <span className="text-[10px] text-gray-500 font-normal">MAD</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 text-[10px] uppercase">Median Listing</div>
-                      <div className="text-white font-semibold text-sm mt-0.5">
-                        {(n.median_price / 1_000_000).toFixed(2)}M <span className="text-[10px] text-gray-500 font-normal">MAD</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 text-[10px] uppercase">Active Inventory</div>
-                      <div className="text-sky-400 font-semibold text-sm mt-0.5">
-                        {n.listing_count} <span className="text-[10px] text-gray-500 font-normal">units</span>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-gray-500 text-[10px] uppercase">Avg Surface</div>
-                      <div className="text-white font-semibold text-sm mt-0.5">
-                        {Math.round(n.avg_surface)} <span className="text-[10px] text-gray-500 font-normal">m²</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 font-mono">
-                    Avg Price: {(n.avg_price / 1_000_000).toFixed(2)}M MAD
-                  </span>
-                  {onSelectNeighborhood && (
-                    <button
-                      onClick={() => onSelectNeighborhood(n.neighborhood)}
-                      className="flex items-center gap-1.5 text-xs font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                    <div
+                      style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        backgroundColor: 'var(--bg-surface-hover)',
+                        border: '1px solid var(--border-subtle)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'var(--accent-light)',
+                      }}
                     >
-                      <span>Explore in 3D</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                      <MapPin size={16} />
+                    </div>
+                  </div>
+
+                  {/* Metrics Box */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, 1fr)',
+                      gap: '12px',
+                      padding: '12px',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--bg-surface-card)',
+                      border: '1px solid var(--border-subtle)',
+                      margin: '14px 0',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                        Rate / m²
+                      </div>
+                      <div className="font-mono" style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
+                        {n.median_price_per_m2.toLocaleString()}{' '}
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>MAD</span>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                        Median Price
+                      </div>
+                      <div className="font-mono" style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
+                        {(n.median_price / 1_000_000).toFixed(2)}M{' '}
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>MAD</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                    <span>Active Properties:</span>
+                    <strong className="font-mono" style={{ color: 'var(--accent-light)' }}>
+                      {n.listing_count} listings
+                    </strong>
+                  </div>
                 </div>
+
+                {/* Explore in 3D Button */}
+                {onSelectNeighborhood && (
+                  <button
+                    onClick={() => onSelectNeighborhood(n.neighborhood)}
+                    style={{
+                      marginTop: '16px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      backgroundColor: 'var(--bg-surface-hover)',
+                      border: '1px solid var(--border-default)',
+                      color: 'var(--text-primary)',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--accent)';
+                      e.currentTarget.style.color = '#ffffff';
+                      e.currentTarget.style.borderColor = 'var(--accent)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'var(--bg-surface-hover)';
+                      e.currentTarget.style.color = 'var(--text-primary)';
+                      e.currentTarget.style.borderColor = 'var(--border-default)';
+                    }}
+                  >
+                    <Compass size={13} />
+                    <span>Explore in 3D Map</span>
+                  </button>
+                )}
               </div>
             );
           })}
         </div>
-
-        {/* Detailed Comparison Table */}
-        <div className="bg-dark-card border border-gray-800/80 rounded-xl overflow-hidden mt-8">
-          <div className="p-5 border-b border-gray-800">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Layers className="w-4 h-4 text-sky-400" />
-              Complete District Comparison Table
-            </h2>
-            <p className="text-xs text-gray-400 mt-1">
-              Click table headers to toggle sorting by administrative metrics.
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-dark-surface/80 text-gray-400 border-b border-gray-800 uppercase text-[10px] tracking-wider">
-                <tr>
-                  <th 
-                    className="p-4 cursor-pointer hover:text-white transition-colors"
-                    onClick={() => handleSort('name')}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Neighborhood</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th 
-                    className="p-4 cursor-pointer hover:text-white transition-colors"
-                    onClick={() => handleSort('listings')}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Active Listings</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th 
-                    className="p-4 cursor-pointer hover:text-white transition-colors"
-                    onClick={() => handleSort('m2')}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Median Price/m²</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th 
-                    className="p-4 cursor-pointer hover:text-white transition-colors"
-                    onClick={() => handleSort('price')}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Median Price</span>
-                      <ArrowUpDown className="w-3 h-3" />
-                    </div>
-                  </th>
-                  <th className="p-4">Avg Surface</th>
-                  <th className="p-4">Min Price</th>
-                  <th className="p-4">Max Price</th>
-                  <th className="p-4 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-800/60 text-gray-300">
-                {filteredNeighborhoods.map((n) => (
-                  <tr key={n.neighborhood} className="hover:bg-dark-surface/40 transition-colors">
-                    <td className="p-4 font-sans font-medium text-white flex items-center gap-2">
-                      <MapPin className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                      {n.neighborhood}
-                    </td>
-                    <td className="p-4 text-sky-400 font-semibold">{n.listing_count}</td>
-                    <td className="p-4 font-semibold text-emerald-400">
-                      {n.median_price_per_m2.toLocaleString()} MAD
-                    </td>
-                    <td className="p-4">{(n.median_price / 1_000_000).toFixed(2)}M MAD</td>
-                    <td className="p-4">{Math.round(n.avg_surface)} m²</td>
-                    <td className="p-4 text-gray-400">{(n.min_price / 1_000_000).toFixed(2)}M</td>
-                    <td className="p-4 text-gray-400">{(n.max_price / 1_000_000).toFixed(2)}M</td>
-                    <td className="p-4 text-right">
-                      {onSelectNeighborhood && (
-                        <button
-                          onClick={() => onSelectNeighborhood(n.neighborhood)}
-                          className="px-2.5 py-1 bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 rounded text-[11px] font-sans font-medium transition-colors"
-                        >
-                          View 3D
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
       </div>
     </div>
   );

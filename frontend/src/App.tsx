@@ -8,12 +8,15 @@ import { DataQualityPage } from './pages/DataQualityPage';
 import { AboutPage } from './pages/AboutPage';
 import { ExportModal } from './components/ExportModal';
 import { fetchMarketSummary } from './services/api';
+import { ThemeProvider } from './context/ThemeContext';
+import { useFavorites } from './hooks/useFavorites';
 
-export const App: React.FC = () => {
+const MainApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('explore');
   const [targetNeighborhood, setTargetNeighborhood] = useState<string | undefined>(undefined);
-  const [totalCount, setTotalCount] = useState<number>(1290);
+  const [totalCount, setTotalCount] = useState<number>(1680);
   const [exportModalOpen, setExportModalOpen] = useState<boolean>(false);
+  const { count: favoritesCount } = useFavorites();
 
   useEffect(() => {
     fetchMarketSummary()
@@ -33,8 +36,19 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-dark-bg text-gray-100 font-sans">
-      {/* Universal Top Navigation */}
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        width: '100vw',
+        overflow: 'hidden',
+        backgroundColor: 'var(--bg-app)',
+        color: 'var(--text-primary)',
+        fontFamily: "'Inter', sans-serif",
+      }}
+    >
+      {/* Universal Floating Top Navigation */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={(tab) => {
@@ -45,12 +59,25 @@ export const App: React.FC = () => {
         }}
         totalCount={totalCount}
         onOpenExport={() => setExportModalOpen(true)}
+        favoritesCount={favoritesCount}
       />
 
       {/* Main Page View */}
-      <main className="flex-1 flex overflow-hidden relative">
+      <main
+        style={{
+          flex: 1,
+          display: 'flex',
+          overflow: 'hidden',
+          position: 'relative',
+          marginTop: '8px',
+        }}
+      >
         {activeTab === 'explore' && (
-          <ExplorePage key={targetNeighborhood || 'default'} initialNeighborhood={targetNeighborhood} />
+          <ExplorePage 
+            key={targetNeighborhood || 'default'} 
+            initialNeighborhood={targetNeighborhood} 
+            onNavigateToAnalytics={() => setActiveTab('market')}
+          />
         )}
         {activeTab === 'market' && <MarketAnalyticsPage />}
         {activeTab === 'neighborhoods' && (
@@ -68,6 +95,14 @@ export const App: React.FC = () => {
         filteredCount={totalCount}
       />
     </div>
+  );
+};
+
+export const App: React.FC = () => {
+  return (
+    <ThemeProvider>
+      <MainApp />
+    </ThemeProvider>
   );
 };
 

@@ -19,44 +19,59 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filte
   };
 
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: 'rgba(0, 0, 0, 0.7)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 100
-    }}>
-      <div style={{
-        backgroundColor: '#0f172a',
-        border: '1px solid #334155',
-        borderRadius: '10px',
-        padding: '24px',
-        width: '420px',
-        maxWidth: '90vw',
-        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#f8fafc' }}>Export Filtered Market Data</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
-            <X size={18} />
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+        backdropFilter: 'blur(8px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 100,
+      }}
+      onClick={onClose}
+    >
+      <div
+        className="glass-panel-elevated"
+        style={{
+          borderRadius: '14px',
+          padding: '24px',
+          width: '420px',
+          maxWidth: '92vw',
+          boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--border-default)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Export Filtered Spatial Data
+          </h3>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              display: 'flex',
+            }}
+          >
+            <X size={16} />
           </button>
         </div>
 
-        <p style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '16px' }}>
-          Export <strong>{filteredCount.toLocaleString()}</strong> active listings currently filtered in your view.
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '18px', lineHeight: 1.5 }}>
+          Export <strong className="font-mono" style={{ color: 'var(--text-primary)' }}>{filteredCount.toLocaleString()}</strong> active listings filtered in your spatial viewport.
         </p>
 
         {/* Format Selector */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '22px' }}>
           {[
-            { id: 'csv', label: 'CSV Spreadsheet', desc: 'Tabular format for Excel / Pandas', icon: FileSpreadsheet },
-            { id: 'geojson', label: 'GeoJSON FeatureCollection', desc: 'Spatial vector format with coordinates', icon: Globe },
-            { id: 'json', label: 'Raw JSON Array', desc: 'Structured JSON payload for APIs', icon: FileJson },
+            { id: 'csv', label: 'CSV Spreadsheet', desc: 'Tabular format for Excel / Pandas analytics', icon: FileSpreadsheet },
+            { id: 'geojson', label: 'GeoJSON FeatureCollection', desc: 'Spatial vector format with EPSG:4326 coords', icon: Globe },
+            { id: 'json', label: 'Raw JSON Array', desc: 'Structured JSON payload for API integration', icon: FileJson },
           ].map((fmt) => {
             const Icon = fmt.icon;
             const isSelected = format === fmt.id;
@@ -68,37 +83,41 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filte
                   display: 'flex',
                   alignItems: 'center',
                   gap: '12px',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  backgroundColor: isSelected ? '#1e293b' : 'transparent',
-                  border: isSelected ? '1px solid #38bdf8' : '1px solid #334155',
-                  cursor: 'pointer'
+                  padding: '12px 14px',
+                  borderRadius: '8px',
+                  backgroundColor: isSelected ? 'var(--bg-surface-hover)' : 'transparent',
+                  border: isSelected ? '1px solid var(--border-active)' : '1px solid var(--border-subtle)',
+                  cursor: 'pointer',
+                  transition: 'all 0.12s ease',
                 }}
               >
-                <Icon size={20} color={isSelected ? '#38bdf8' : '#94a3b8'} />
+                <Icon size={18} style={{ color: isSelected ? 'var(--accent-light)' : 'var(--text-muted)' }} />
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: isSelected ? '#f8fafc' : '#cbd5e1' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: isSelected ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
                     {fmt.label}
                   </div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{fmt.desc}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {fmt.desc}
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
           <button
             onClick={onClose}
             style={{
-              padding: '8px 16px',
-              borderRadius: '6px',
-              backgroundColor: '#1e293b',
-              color: '#94a3b8',
-              border: '1px solid #334155',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              backgroundColor: 'transparent',
+              color: 'var(--text-secondary)',
+              border: '1px solid var(--border-subtle)',
               cursor: 'pointer',
-              fontSize: '12px'
+              fontSize: '12px',
+              fontWeight: 500,
             }}
           >
             Cancel
@@ -110,16 +129,18 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, filte
               alignItems: 'center',
               gap: '6px',
               padding: '8px 16px',
-              borderRadius: '6px',
-              backgroundColor: '#2563eb',
+              borderRadius: '8px',
+              backgroundColor: 'var(--accent)',
               color: '#ffffff',
               border: 'none',
               cursor: 'pointer',
               fontSize: '12px',
-              fontWeight: 600
+              fontWeight: 600,
+              boxShadow: 'var(--shadow-sm)',
             }}
           >
-            <Download size={14} /> Download File
+            <Download size={13} />
+            <span>Download Dataset</span>
           </button>
         </div>
       </div>

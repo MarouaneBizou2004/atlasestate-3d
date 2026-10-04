@@ -3,7 +3,8 @@ import { MarketSummary, NeighborhoodStat } from '../types';
 import { fetchMarketSummary, fetchNeighborhoodStats, fetchPriceDistribution } from '../services/api';
 import { 
   TrendingUp, Building, DollarSign, Home, CheckCircle2, 
-  MapPin, AlertCircle, BarChart3, PieChart, Layers, RefreshCw
+  MapPin, AlertCircle, BarChart3, PieChart, Layers, RefreshCw,
+  Sparkles
 } from 'lucide-react';
 
 export const MarketAnalyticsPage: React.FC = () => {
@@ -44,16 +45,18 @@ export const MarketAnalyticsPage: React.FC = () => {
     return b.listing_count - a.listing_count;
   });
 
-  const maxM2 = Math.max(...neighborhoods.map(n => n.median_price_per_m2), 1);
-  const maxPrice = Math.max(...neighborhoods.map(n => n.median_price), 1);
-  const maxListings = Math.max(...neighborhoods.map(n => n.listing_count), 1);
+  const maxM2 = Math.max(...neighborhoods.map((n) => n.median_price_per_m2), 1);
+  const maxPrice = Math.max(...neighborhoods.map((n) => n.median_price), 1);
+  const maxListings = Math.max(...neighborhoods.map((n) => n.listing_count), 1);
 
   if (loading) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-dark-bg">
-        <div className="flex flex-col items-center gap-3">
-          <RefreshCw className="w-8 h-8 text-sky-400 animate-spin" />
-          <p className="text-gray-400 font-mono text-sm">Aggregating spatial market analytics...</p>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-app)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+          <RefreshCw size={28} className="animate-spin" style={{ color: 'var(--accent-light)' }} />
+          <p className="font-mono" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+            Aggregating spatial market analytics...
+          </p>
         </div>
       </div>
     );
@@ -61,14 +64,34 @@ export const MarketAnalyticsPage: React.FC = () => {
 
   if (error || !summary) {
     return (
-      <div className="flex-1 flex items-center justify-center bg-dark-bg p-6">
-        <div className="bg-dark-card border border-rose-500/30 rounded-xl p-8 max-w-md text-center">
-          <AlertCircle className="w-12 h-12 text-rose-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Connection Error</h2>
-          <p className="text-gray-400 text-sm mb-6">{error || 'Could not load market data.'}</p>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--bg-app)', padding: '24px' }}>
+        <div
+          className="glass-panel"
+          style={{
+            maxWidth: '440px',
+            padding: '32px',
+            textAlign: 'center',
+            border: '1px solid var(--danger)',
+          }}
+        >
+          <AlertCircle size={40} style={{ color: 'var(--danger)', margin: '0 auto 16px' }} />
+          <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+            Connection Error
+          </h2>
+          <p style={{ color: 'var(--text-muted)', fontSize: '13px', marginBottom: '20px' }}>
+            {error || 'Could not load market data.'}
+          </p>
           <button
             onClick={loadData}
-            className="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-lg text-sm font-semibold transition-colors"
+            style={{
+              padding: '8px 18px',
+              backgroundColor: 'var(--accent)',
+              color: '#ffffff',
+              borderRadius: '8px',
+              border: 'none',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
           >
             Retry Connection
           </button>
@@ -78,180 +101,297 @@ export const MarketAnalyticsPage: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 bg-dark-bg overflow-y-auto px-6 py-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: 'var(--bg-app)',
+        overflowY: 'auto',
+        padding: '24px 32px',
+      }}
+    >
+      <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid var(--border-subtle)',
+            paddingBottom: '20px',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
+        >
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Gold Mart v1.2
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                  color: 'var(--success)',
+                  border: '1px solid var(--success)',
+                  fontWeight: 600,
+                }}
+              >
+                Gold Marts Verified
               </span>
-              <span className="text-xs text-gray-500 font-mono">City: Marrakech, Morocco</span>
+              <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                Marrakech, Morocco
+              </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mt-1">
+            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.4px' }}>
               Market Intelligence & Spatial Analytics
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Real-time property market telemetry, spatial aggregates, and price distribution across 13 administrative districts.
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              Spatial aggregates, telemetry distributions, and cross-district valuations across 13 administrative zones.
             </p>
           </div>
           <button
             onClick={loadData}
-            className="self-start md:self-auto flex items-center gap-2 px-3 py-2 bg-dark-card hover:bg-dark-surface border border-gray-800 rounded-lg text-xs font-medium text-gray-300 transition-colors"
+            className="glass-panel"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              border: '1px solid var(--border-subtle)',
+            }}
           >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Refresh Data
+            <RefreshCw size={13} style={{ color: 'var(--accent-light)' }} />
+            <span>Refresh Telemetry</span>
           </button>
         </div>
 
-        {/* KPI Scorecards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-dark-card border border-gray-800/80 rounded-xl p-5 hover:border-gray-700 transition-all">
-            <div className="flex items-center justify-between text-gray-400 mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">Total Active Listings</span>
-              <div className="w-8 h-8 rounded-lg bg-sky-500/10 text-sky-400 flex items-center justify-center">
-                <Building className="w-4 h-4" />
+        {/* 4 KPI Scorecards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+          <div className="glass-panel" style={{ padding: '18px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                Total Active Listings
+              </span>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(2, 132, 199, 0.15)',
+                  color: 'var(--accent-light)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Building size={16} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white font-mono">
+            <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>
               {summary.total_listings.toLocaleString()}
             </div>
-            <div className="text-xs text-emerald-400 flex items-center gap-1 mt-2">
-              <TrendingUp className="w-3 h-3" />
-              <span>13 neighborhoods verified</span>
+            <div style={{ fontSize: '11px', color: 'var(--success)', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <TrendingUp size={12} />
+              <span>13 districts geocoded (100%)</span>
             </div>
           </div>
 
-          <div className="bg-dark-card border border-gray-800/80 rounded-xl p-5 hover:border-gray-700 transition-all">
-            <div className="flex items-center justify-between text-gray-400 mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">Median Price</span>
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                <DollarSign className="w-4 h-4" />
+          <div className="glass-panel" style={{ padding: '18px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                Median Price
+              </span>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                  color: 'var(--success)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <DollarSign size={16} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white font-mono">
-              {summary.median_price.toLocaleString()} <span className="text-xs text-gray-500">MAD</span>
+            <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>
+              {summary.median_price.toLocaleString()}{' '}
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>MAD</span>
             </div>
-            <div className="text-xs text-gray-400 mt-2">
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
               Avg: {(summary.avg_price / 1_000_000).toFixed(2)}M MAD
             </div>
           </div>
 
-          <div className="bg-dark-card border border-gray-800/80 rounded-xl p-5 hover:border-gray-700 transition-all">
-            <div className="flex items-center justify-between text-gray-400 mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">Median Price / m²</span>
-              <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center">
-                <BarChart3 className="w-4 h-4" />
+          <div className="glass-panel" style={{ padding: '18px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                Median Price / m²
+              </span>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                  color: '#c084fc',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <BarChart3 size={16} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white font-mono">
-              {summary.median_price_per_m2.toLocaleString()} <span className="text-xs text-gray-500">MAD/m²</span>
+            <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>
+              {summary.median_price_per_m2.toLocaleString()}{' '}
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>MAD/m²</span>
             </div>
-            <div className="text-xs text-gray-400 mt-2">
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
               Avg: {Math.round(summary.avg_price_per_m2).toLocaleString()} MAD/m²
             </div>
           </div>
 
-          <div className="bg-dark-card border border-gray-800/80 rounded-xl p-5 hover:border-gray-700 transition-all">
-            <div className="flex items-center justify-between text-gray-400 mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider">Median Surface</span>
-              <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                <Home className="w-4 h-4" />
+          <div className="glass-panel" style={{ padding: '18px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+              <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', fontWeight: 600 }}>
+                Median Surface Area
+              </span>
+              <div
+                style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '8px',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                  color: 'var(--warning)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Home size={16} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-white font-mono">
-              {summary.median_surface} <span className="text-xs text-gray-500">m²</span>
+            <div className="font-mono" style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)' }}>
+              {summary.median_surface}{' '}
+              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>m²</span>
             </div>
-            <div className="text-xs text-gray-400 mt-2">
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>
               Avg: {Math.round(summary.avg_surface)} m²
             </div>
           </div>
         </div>
 
-        {/* Two-Column Analytics Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Left Column: Neighborhood Pricing Rankings */}
-          <div className="lg:col-span-2 bg-dark-card border border-gray-800/80 rounded-xl p-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        {/* Analytics Section: Left Hierarchy Rankings, Right Breakdowns */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+          {/* Left Column: Rankings */}
+          <div className="glass-panel" style={{ padding: '24px', borderRadius: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
               <div>
-                <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-sky-400" />
-                  Neighborhood Pricing Hierarchy
+                <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MapPin size={16} style={{ color: 'var(--accent-light)' }} />
+                  <span>District Valuation Hierarchy</span>
                 </h2>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Spatial comparison of median valuation metrics by administrative zone
+                <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                  Comparative pricing metrics sorted across 13 Marrakech zones
                 </p>
               </div>
 
               {/* Sort selector */}
-              <div className="flex items-center gap-1 bg-dark-surface p-1 rounded-lg border border-gray-800 text-xs">
-                <button
-                  onClick={() => setSortBy('m2_desc')}
-                  className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
-                    sortBy === 'm2_desc' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Price / m²
-                </button>
-                <button
-                  onClick={() => setSortBy('price_desc')}
-                  className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
-                    sortBy === 'price_desc' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Median Price
-                </button>
-                <button
-                  onClick={() => setSortBy('listings_desc')}
-                  className={`px-3 py-1.5 rounded-md font-medium transition-colors ${
-                    sortBy === 'listings_desc' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30' : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  Volume
-                </button>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '4px',
+                  padding: '3px',
+                  background: 'var(--bg-surface-hover)',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-subtle)',
+                }}
+              >
+                {[
+                  { id: 'm2_desc', label: 'Price / m²' },
+                  { id: 'price_desc', label: 'Median Price' },
+                  { id: 'listings_desc', label: 'Volume' },
+                ].map((s) => (
+                  <button
+                    key={s.id}
+                    onClick={() => setSortBy(s.id as any)}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: '6px',
+                      fontSize: '11px',
+                      fontWeight: sortBy === s.id ? 700 : 500,
+                      backgroundColor: sortBy === s.id ? 'var(--accent)' : 'transparent',
+                      color: sortBy === s.id ? '#ffffff' : 'var(--text-secondary)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.12s ease',
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* Bars List */}
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {sortedNeighborhoods.map((n, idx) => {
-                const pct = sortBy === 'm2_desc'
-                  ? (n.median_price_per_m2 / maxM2) * 100
-                  : sortBy === 'price_desc'
-                  ? (n.median_price / maxPrice) * 100
-                  : (n.listing_count / maxListings) * 100;
+                const pct =
+                  sortBy === 'm2_desc'
+                    ? (n.median_price_per_m2 / maxM2) * 100
+                    : sortBy === 'price_desc'
+                    ? (n.median_price / maxPrice) * 100
+                    : (n.listing_count / maxListings) * 100;
 
                 return (
-                  <div key={n.neighborhood} className="group">
-                    <div className="flex items-center justify-between text-xs mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-gray-500 w-5">#{idx + 1}</span>
-                        <span className="font-medium text-white group-hover:text-sky-400 transition-colors">
-                          {n.neighborhood}
+                  <div key={n.neighborhood}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', marginBottom: '6px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span className="font-mono" style={{ color: 'var(--text-muted)', width: '22px' }}>
+                          #{idx + 1}
                         </span>
-                        <span className="text-gray-500 text-[11px]">({n.listing_count} listings)</span>
+                        <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{n.neighborhood}</span>
+                        <span style={{ color: 'var(--text-muted)', fontSize: '11px' }}>({n.listing_count} listings)</span>
                       </div>
-                      <div className="font-mono font-medium text-gray-300">
+                      <div className="font-mono" style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>
                         {sortBy === 'm2_desc' && `${n.median_price_per_m2.toLocaleString()} MAD/m²`}
                         {sortBy === 'price_desc' && `${(n.median_price / 1_000_000).toFixed(2)}M MAD`}
                         {sortBy === 'listings_desc' && `${n.listing_count} properties`}
                       </div>
                     </div>
-                    
-                    {/* Visual Progress Bar */}
-                    <div className="w-full h-2.5 bg-dark-surface rounded-full overflow-hidden border border-gray-800">
+
+                    <div
+                      style={{
+                        width: '100%',
+                        height: '8px',
+                        backgroundColor: 'var(--bg-surface-hover)',
+                        borderRadius: '999px',
+                        overflow: 'hidden',
+                        border: '1px solid var(--border-subtle)',
+                      }}
+                    >
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          idx < 3
-                            ? 'bg-gradient-to-r from-sky-500 to-indigo-500'
-                            : idx < 7
-                            ? 'bg-gradient-to-r from-emerald-500 to-teal-500'
-                            : 'bg-gray-600'
-                        }`}
-                        style={{ width: `${Math.max(pct, 5)}%` }}
+                        style={{
+                          height: '100%',
+                          borderRadius: '999px',
+                          background:
+                            idx < 3
+                              ? 'linear-gradient(90deg, var(--accent) 0%, #38bdf8 100%)'
+                              : idx < 7
+                              ? 'linear-gradient(90deg, #10b981 0%, #34d399 100%)'
+                              : 'var(--text-muted)',
+                          width: `${Math.max(pct, 5)}%`,
+                          transition: 'width 0.4s ease',
+                        }}
                       />
                     </div>
                   </div>
@@ -260,30 +400,30 @@ export const MarketAnalyticsPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Breakdown Widgets */}
-          <div className="space-y-6">
-            
-            {/* Property Types */}
-            <div className="bg-dark-card border border-gray-800/80 rounded-xl p-6">
-              <h2 className="text-base font-bold text-white flex items-center gap-2 mb-4">
-                <PieChart className="w-4 h-4 text-emerald-400" />
-                Inventory by Property Type
+          {/* Right Column: Breakdown Cards */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Inventory by Typology */}
+            <div className="glass-panel" style={{ padding: '20px', borderRadius: '14px' }}>
+              <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <PieChart size={15} style={{ color: 'var(--accent-light)' }} />
+                <span>Typology Composition</span>
               </h2>
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {Object.entries(summary.property_type_breakdown || {}).map(([type, rawCount]) => {
                   const count = Number(rawCount) || 0;
                   const pct = Math.round((count / summary.total_listings) * 100);
                   return (
-                    <div key={type} className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="capitalize font-medium text-gray-300">{type}</span>
-                        <span className="font-mono text-gray-400">{count} ({pct}%)</span>
+                    <div key={type} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                        <span style={{ textTransform: 'capitalize', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                          {type}
+                        </span>
+                        <span className="font-mono" style={{ color: 'var(--text-muted)' }}>
+                          {count} ({pct}%)
+                        </span>
                       </div>
-                      <div className="w-full h-1.5 bg-dark-surface rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-emerald-500 rounded-full"
-                          style={{ width: `${pct}%` }}
-                        />
+                      <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '999px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', backgroundColor: 'var(--accent)', borderRadius: '999px', width: `${pct}%` }} />
                       </div>
                     </div>
                   );
@@ -291,71 +431,78 @@ export const MarketAnalyticsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Valuation Model Status Breakdown */}
-            <div className="bg-dark-card border border-gray-800/80 rounded-xl p-6">
-              <h2 className="text-base font-bold text-white flex items-center gap-2 mb-4">
-                <CheckCircle2 className="w-4 h-4 text-sky-400" />
-                ML Valuation Value Gap
+            {/* Valuation Model Value Gap */}
+            <div className="glass-panel" style={{ padding: '20px', borderRadius: '14px' }}>
+              <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                <CheckCircle2 size={15} style={{ color: 'var(--success)' }} />
+                <span>AVM Market Alignment</span>
               </h2>
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {Object.entries(summary.valuation_status_breakdown || {}).map(([status, rawCount]) => {
                   const count = Number(rawCount) || 0;
                   const pct = Math.round((count / summary.total_listings) * 100);
                   const isUnder = status.toLowerCase().includes('below');
                   const isOver = status.toLowerCase().includes('above');
-                  const badgeColor = isUnder ? 'bg-emerald-500' : isOver ? 'bg-rose-500' : 'bg-sky-500';
+                  const badgeColor = isUnder ? 'var(--success)' : isOver ? 'var(--danger)' : 'var(--accent-light)';
 
                   return (
-                    <div key={status} className="flex flex-col gap-1">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-gray-300 font-medium">{status}</span>
-                        <span className="font-mono text-gray-400">{count} ({pct}%)</span>
+                    <div key={status} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                        <span style={{ color: 'var(--text-secondary)', fontWeight: 600 }}>{status}</span>
+                        <span className="font-mono" style={{ color: 'var(--text-muted)' }}>
+                          {count} ({pct}%)
+                        </span>
                       </div>
-                      <div className="w-full h-1.5 bg-dark-surface rounded-full overflow-hidden">
-                        <div
-                          className={`h-full ${badgeColor} rounded-full`}
-                          style={{ width: `${pct}%` }}
-                        />
+                      <div style={{ width: '100%', height: '6px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '999px', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', backgroundColor: badgeColor, borderRadius: '999px', width: `${pct}%` }} />
                       </div>
                     </div>
                   );
                 })}
               </div>
-              <div className="mt-4 p-3 bg-dark-surface/50 border border-gray-800 rounded-lg text-[11px] text-gray-400 leading-relaxed">
-                Calculated against the Champion Random Forest regressor with forward-chaining temporal holdout (Test R² = 0.8781).
+              <div
+                style={{
+                  marginTop: '16px',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--bg-surface-hover)',
+                  border: '1px solid var(--border-subtle)',
+                  fontSize: '10px',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.5,
+                }}
+              >
+                Calibrated on Champion Random Forest regressor with forward temporal holdout (Test R² = 0.8781).
               </div>
             </div>
 
-            {/* Spatial Data Stack Summary */}
-            <div className="bg-dark-card border border-gray-800/80 rounded-xl p-6">
-              <h2 className="text-base font-bold text-white flex items-center gap-2 mb-3">
-                <Layers className="w-4 h-4 text-indigo-400" />
-                Pipeline Metadata
+            {/* Pipeline Provenance */}
+            <div className="glass-panel" style={{ padding: '20px', borderRadius: '14px' }}>
+              <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <Layers size={15} style={{ color: 'var(--accent-light)' }} />
+                <span>Geospatial Engine</span>
               </h2>
-              <div className="space-y-2 text-xs font-mono text-gray-400">
-                <div className="flex justify-between py-1 border-b border-gray-800/60">
+              <div className="font-mono" style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '11px', color: 'var(--text-muted)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>
                   <span>Projection</span>
-                  <span className="text-white">EPSG:4326 (WGS 84)</span>
+                  <span style={{ color: 'var(--text-primary)' }}>EPSG:4326 (WGS 84)</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-gray-800/60">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>
                   <span>Spatial Engine</span>
-                  <span className="text-white">PostGIS 3.4 / SQLite RT</span>
+                  <span style={{ color: 'var(--text-primary)' }}>PostGIS 3.4 / SQLite RT</span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-gray-800/60">
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '4px' }}>
                   <span>dbt Marts</span>
-                  <span className="text-emerald-400">4 models (PASS)</span>
+                  <span style={{ color: 'var(--success)' }}>4 models (PASS)</span>
                 </div>
-                <div className="flex justify-between py-1">
-                  <span>Data Quality</span>
-                  <span className="text-emerald-400">100.0% Pass Rate</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Validation</span>
+                  <span style={{ color: 'var(--success)' }}>100.0% Pass Rate</span>
                 </div>
               </div>
             </div>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );

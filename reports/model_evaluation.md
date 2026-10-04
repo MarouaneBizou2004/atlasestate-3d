@@ -8,18 +8,18 @@
 
 | Model Architecture | Val $R^2$ | Val MAPE | Val MAE (MAD) | Val RMSE (MAD) |
 | :--- | :--- | :--- | :--- | :--- |
-| **Baseline (Ridge Regression)** | 0.8655 | 31.09% | 1,147,349.83 MAD | 1,940,800.5 MAD |
-| **Random Forest Regressor** | 0.9358 | 13.94% | 734,745.63 MAD | 1,341,258.82 MAD |
-| **HistGradientBoosting Regressor** | 0.9152 | 15.76% | 863,077.08 MAD | 1,541,070.45 MAD |
+| **Baseline (Ridge Regression)** | 0.8842 | 27.94% | 990,213.27 MAD | 1,513,837.79 MAD |
+| **Random Forest Regressor** | 0.9099 | 15.72% | 790,897.75 MAD | 1,335,189.04 MAD |
+| **HistGradientBoosting Regressor** | 0.9037 | 15.29% | 796,226.32 MAD | 1,380,749.19 MAD |
 
 ---
 
 ## 2. Out-of-Sample Test Set Performance (Unseen Listings)
 
-- **Coefficient of Determination ($R^2$):** **0.8781** (High explanatory power across diverse property types)
-- **Mean Absolute Percentage Error (MAPE):** **15.7%**
-- **Mean Absolute Error (MAE):** **830,303.76 MAD**
-- **Root Mean Squared Error (RMSE):** **1,351,583.64 MAD**
+- **Coefficient of Determination ($R^2$):** **0.9239** (High explanatory power across diverse property types)
+- **Mean Absolute Percentage Error (MAPE):** **14.3%**
+- **Mean Absolute Error (MAE):** **735,144.2 MAD**
+- **Root Mean Squared Error (RMSE):** **1,283,273.8 MAD**
 
 ---
 

@@ -33,7 +33,7 @@ export const DataQualityPage: React.FC = () => {
     { name: 'Habitable Surface Boundary', desc: 'Surface area strictly positive and between 15m² and 5,000m²', status: 'PASS' },
     { name: 'Price/m² Economic Sanity', desc: 'Unit price falls within [1,500, 80,000] MAD/m²', status: 'PASS' },
     { name: 'Spatial POI Proximity', desc: 'Calculates 7 geodesic Haversine distance vectors without nulls', status: 'PASS' },
-    { name: 'Neighborhood Polygon Assignment', desc: '100% properties assigned to authentic Marrakech administrative boundary', status: 'PASS' },
+    { name: 'District Polygon Alignment', desc: '100% properties assigned to authentic Marrakech administrative boundary', status: 'PASS' },
     { name: 'Temporal ISO-8601 Compliance', desc: 'Published timestamps parsed to standardized UTC ISO strings', status: 'PASS' },
   ];
 
@@ -46,97 +46,186 @@ export const DataQualityPage: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 bg-dark-bg overflow-y-auto px-6 py-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: 'var(--bg-app)',
+        overflowY: 'auto',
+        padding: '24px 32px',
+      }}
+    >
+      <div style={{ maxWidth: '1180px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-800 pb-6">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid var(--border-subtle)',
+            paddingBottom: '20px',
+            flexWrap: 'wrap',
+            gap: '16px',
+          }}
+        >
           <div>
-            <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span
+                style={{
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  fontSize: '11px',
+                  fontFamily: 'monospace',
+                  backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                  color: 'var(--success)',
+                  border: '1px solid var(--success)',
+                  fontWeight: 600,
+                }}
+              >
                 100.0% Pass Rate
               </span>
-              <span className="text-xs text-gray-500 font-mono">Medallion Validation Protocol</span>
+              <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                Medallion Architecture Integrity
+              </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mt-1">
+            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.4px' }}>
               Data Quality & Pipeline Governance
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              Automated data validation, schema enforcement, and dbt test assertion audit logs.
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+              Automated data validation rules, Great Expectations assertions, and dbt test logs.
             </p>
           </div>
 
           <button
             onClick={loadData}
-            className="flex items-center gap-2 px-3 py-2 bg-dark-card hover:bg-dark-surface border border-gray-800 rounded-lg text-xs font-medium text-gray-300 transition-colors"
+            className="glass-panel"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              fontSize: '12px',
+              fontWeight: 600,
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              border: '1px solid var(--border-subtle)',
+            }}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
-            Re-run Audit Check
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} style={{ color: 'var(--accent-light)' }} />
+            <span>Re-run Audit Suite</span>
           </button>
         </div>
 
         {/* Medallion Pipeline Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-dark-card border border-amber-500/20 rounded-xl p-5">
-            <div className="flex items-center justify-between text-amber-400 mb-2">
-              <span className="text-xs font-mono font-bold uppercase">1. Bronze Raw Ingestion</span>
-              <Database className="w-4 h-4" />
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+          <div className="glass-panel" style={{ padding: '20px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--warning)', textTransform: 'uppercase' }}>
+                1. Bronze Raw Ingestion
+              </span>
+              <Database size={16} style={{ color: 'var(--warning)' }} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">1,290</div>
-            <p className="text-xs text-gray-400 mt-1">
-              Raw JSON payloads preserved with UTC ingestion timestamps and audit UUIDs.
+            <div className="font-mono" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>
+              1,290
+            </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
+              Raw JSON payloads preserved with UTC ingestion timestamps and idempotency keys.
             </p>
           </div>
 
-          <div className="bg-dark-card border border-gray-700/50 rounded-xl p-5">
-            <div className="flex items-center justify-between text-sky-400 mb-2">
-              <span className="text-xs font-mono font-bold uppercase">2. Silver Cleaned Parquet</span>
-              <Layers className="w-4 h-4" />
+          <div className="glass-panel" style={{ padding: '20px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--accent-light)', textTransform: 'uppercase' }}>
+                2. Silver Cleaned Parquet
+              </span>
+              <Layers size={16} style={{ color: 'var(--accent-light)' }} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">1,290</div>
-            <p className="text-xs text-gray-400 mt-1">
-              Deduplicated, type-cast, geocoded, and zero null coordinates.
+            <div className="font-mono" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>
+              1,290
+            </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
+              Deduplicated, type-cast, geocoded, and verified zero null coordinates.
             </p>
           </div>
 
-          <div className="bg-dark-card border border-emerald-500/20 rounded-xl p-5">
-            <div className="flex items-center justify-between text-emerald-400 mb-2">
-              <span className="text-xs font-mono font-bold uppercase">3. Gold Enriched Marts</span>
-              <CheckCircle2 className="w-4 h-4" />
+          <div className="glass-panel" style={{ padding: '20px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontFamily: 'monospace', fontWeight: 700, color: 'var(--success)', textTransform: 'uppercase' }}>
+                3. Gold Enriched Marts
+              </span>
+              <CheckCircle2 size={16} style={{ color: 'var(--success)' }} />
             </div>
-            <div className="text-2xl font-bold text-white font-mono">1,290</div>
-            <p className="text-xs text-gray-400 mt-1">
+            <div className="font-mono" style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)' }}>
+              1,290
+            </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px', lineHeight: 1.4 }}>
               45 enriched spatial & ML features, district aggregations, and value gap scores.
             </p>
           </div>
         </div>
 
         {/* Validation Checks Table */}
-        <div className="bg-dark-card border border-gray-800/80 rounded-xl overflow-hidden">
-          <div className="p-5 border-b border-gray-800 flex items-center justify-between">
+        <div className="glass-panel" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                Automated Integrity Constraints
+              <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ShieldCheck size={16} style={{ color: 'var(--success)' }} />
+                <span>Automated Integrity Constraints</span>
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
                 Deterministic validation rules evaluated prior to warehouse loading.
               </p>
             </div>
-            <span className="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-mono font-bold">
+            <span
+              style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                color: 'var(--success)',
+                border: '1px solid var(--success)',
+                fontSize: '11px',
+                fontWeight: 700,
+                fontFamily: 'monospace',
+              }}
+            >
               7 / 7 Verified
             </span>
           </div>
 
-          <div className="divide-y divide-gray-800/60">
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
             {validationChecks.map((chk, i) => (
-              <div key={i} className="p-4 flex items-center justify-between text-xs hover:bg-dark-surface/40 transition-colors">
+              <div
+                key={i}
+                style={{
+                  padding: '14px 20px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  borderBottom: i < validationChecks.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                }}
+              >
                 <div>
-                  <div className="font-semibold text-white font-sans">{chk.name}</div>
-                  <div className="text-gray-400 text-[11px] font-mono mt-0.5">{chk.desc}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>{chk.name}</div>
+                  <div className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {chk.desc}
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono font-bold text-[11px]">
-                  <Check className="w-3.5 h-3.5" />
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    padding: '3px 8px',
+                    borderRadius: '4px',
+                    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                    color: 'var(--success)',
+                    border: '1px solid var(--success)',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  <Check size={12} />
                   <span>{chk.status}</span>
                 </div>
               </div>
@@ -144,40 +233,74 @@ export const DataQualityPage: React.FC = () => {
           </div>
         </div>
 
-        {/* dbt Core Tests */}
-        <div className="bg-dark-card border border-gray-800/80 rounded-xl overflow-hidden">
-          <div className="p-5 border-b border-gray-800 flex items-center justify-between">
+        {/* dbt Core Tests Table */}
+        <div className="glass-panel" style={{ borderRadius: '14px', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                <FileCode className="w-4 h-4 text-sky-400" />
-                dbt Core Singular & Generic Test Assertions
+              <h2 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <FileCode size={16} style={{ color: 'var(--accent-light)' }} />
+                <span>dbt Core SQL Test Assertions</span>
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
                 Executed via SQL assertion queries during transformation pipeline.
               </p>
             </div>
-            <span className="px-2.5 py-1 bg-sky-500/10 text-sky-400 border border-sky-500/30 rounded-full text-xs font-mono font-bold">
+            <span
+              style={{
+                padding: '3px 8px',
+                borderRadius: '6px',
+                backgroundColor: 'rgba(2, 132, 199, 0.15)',
+                color: 'var(--accent-light)',
+                border: '1px solid var(--border-subtle)',
+                fontSize: '11px',
+                fontWeight: 700,
+                fontFamily: 'monospace',
+              }}
+            >
               5 / 5 Passed
             </span>
           </div>
 
-          <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-dark-surface/60 text-gray-400 border-b border-gray-800 uppercase text-[10px]">
-              <tr>
-                <th className="p-3.5">Target Model</th>
-                <th className="p-3.5">Test Identifier</th>
-                <th className="p-3.5">Violations Found</th>
-                <th className="p-3.5 text-right">Result</th>
+          <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse', fontSize: '12px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--bg-surface-hover)', textTransform: 'uppercase', fontSize: '10px', color: 'var(--text-muted)' }}>
+                <th style={{ padding: '12px 20px' }}>Target Model</th>
+                <th style={{ padding: '12px 20px' }}>Test Identifier</th>
+                <th style={{ padding: '12px 20px' }}>Violations</th>
+                <th style={{ padding: '12px 20px', textAlign: 'right' }}>Result</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800/60 text-gray-300">
+            <tbody>
               {dbtTests.map((t, idx) => (
-                <tr key={idx} className="hover:bg-dark-surface/30">
-                  <td className="p-3.5 text-sky-400 font-semibold">{t.model}</td>
-                  <td className="p-3.5 text-gray-300">{t.test}</td>
-                  <td className="p-3.5 text-emerald-400 font-bold">{t.failures} rows</td>
-                  <td className="p-3.5 text-right">
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold text-[10px]">
+                <tr
+                  key={idx}
+                  style={{
+                    borderBottom: idx < dbtTests.length - 1 ? '1px solid var(--border-subtle)' : 'none',
+                    color: 'var(--text-secondary)',
+                  }}
+                >
+                  <td className="font-mono" style={{ padding: '12px 20px', color: 'var(--accent-light)', fontWeight: 600 }}>
+                    {t.model}
+                  </td>
+                  <td className="font-mono" style={{ padding: '12px 20px', color: 'var(--text-primary)' }}>
+                    {t.test}
+                  </td>
+                  <td className="font-mono" style={{ padding: '12px 20px', color: 'var(--success)', fontWeight: 600 }}>
+                    {t.failures} rows
+                  </td>
+                  <td style={{ padding: '12px 20px', textAlign: 'right' }}>
+                    <span
+                      style={{
+                        padding: '2px 6px',
+                        borderRadius: '4px',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        color: 'var(--success)',
+                        border: '1px solid var(--success)',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        fontFamily: 'monospace',
+                      }}
+                    >
                       {t.result}
                     </span>
                   </td>
@@ -188,27 +311,48 @@ export const DataQualityPage: React.FC = () => {
         </div>
 
         {/* Raw JSON toggle */}
-        <div className="bg-dark-card border border-gray-800/80 rounded-xl p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-gray-400" />
-              <h3 className="text-sm font-bold text-white">Pipeline Execution Telemetry</h3>
+        <div className="glass-panel" style={{ padding: '18px 20px', borderRadius: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Terminal size={15} style={{ color: 'var(--text-muted)' }} />
+              <h3 style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                Pipeline Execution Telemetry Payload
+              </h3>
             </div>
             <button
               onClick={() => setShowRaw(!showRaw)}
-              className="text-xs text-sky-400 hover:text-sky-300 font-mono transition-colors"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-light)',
+                cursor: 'pointer',
+                fontSize: '12px',
+                fontFamily: 'monospace',
+              }}
             >
               {showRaw ? 'Hide JSON' : 'Inspect Raw JSON'}
             </button>
           </div>
 
           {showRaw && (
-            <pre className="p-4 bg-dark-bg border border-gray-800 rounded-lg text-[11px] font-mono text-emerald-400 overflow-x-auto max-h-96">
+            <pre
+              className="font-mono"
+              style={{
+                marginTop: '12px',
+                padding: '14px',
+                borderRadius: '8px',
+                backgroundColor: 'var(--bg-surface-card)',
+                border: '1px solid var(--border-subtle)',
+                color: 'var(--success)',
+                fontSize: '11px',
+                maxHeight: '300px',
+                overflowY: 'auto',
+              }}
+            >
               {JSON.stringify(report, null, 2)}
             </pre>
           )}
         </div>
-
       </div>
     </div>
   );

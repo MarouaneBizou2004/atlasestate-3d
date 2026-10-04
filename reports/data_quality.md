@@ -1,6 +1,6 @@
 # AtlasEstate 3D - Data Quality & Governance Audit
-**Execution Timestamp:** 2026-10-03 11:48:50 UTC  
-**Batch UUID:** `9ef75c4b-9e8f-4cb8-96b9-fcf669ef415b`  
+**Execution Timestamp:** 2026-10-03 23:46:48 UTC  
+**Batch UUID:** `d58d0ac8-69ee-4af5-ad09-b5ff99eb1372`  
 **Pipeline Status:** PASSED (Production Ready)
 
 ---
@@ -9,8 +9,8 @@
 
 | Metric | Measured Value | Standard / Threshold | Status |
 | :--- | :--- | :--- | :--- |
-| **Total Ingested Records** | 1,290 | N/A | Logged |
-| **Clean Validated Records** | 1,290 | > 1,000 | **PASSED** |
+| **Total Ingested Records** | 1,680 | N/A | Logged |
+| **Clean Validated Records** | 1,680 | > 1,000 | **PASSED** |
 | **Rejected Records** | 0 | < 5% | **PASSED** |
 | **Data Quality Pass Rate** | **100.0%** | > 95.0% | **PASSED** |
 | **Duplicate Listings Removed** | 0 | 0 | **PASSED** |

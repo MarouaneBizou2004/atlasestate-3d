@@ -57,81 +57,121 @@ export const ValuationCalculatorPage: React.FC = () => {
   };
 
   const handleToggle = (field: keyof ValuationRequest) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
   };
 
   return (
-    <div className="flex-1 bg-dark-bg overflow-y-auto px-6 py-8">
-      <div className="max-w-6xl mx-auto space-y-8">
-        
+    <div
+      style={{
+        flex: 1,
+        backgroundColor: 'var(--bg-app)',
+        overflowY: 'auto',
+        padding: '24px 32px',
+      }}
+    >
+      <div style={{ maxWidth: '1180px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
         {/* Header */}
-        <div className="border-b border-gray-800 pb-6">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20">
+        <div style={{ borderBottom: '1px solid var(--border-subtle)', paddingBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+            <span
+              style={{
+                padding: '2px 8px',
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontFamily: 'monospace',
+                backgroundColor: 'rgba(168, 85, 247, 0.15)',
+                color: '#c084fc',
+                border: '1px solid var(--border-subtle)',
+                fontWeight: 600,
+              }}
+            >
               Walk-Forward ML Regressor (R² = 0.8781)
             </span>
-            <span className="text-xs text-gray-500 font-mono">Random Forest Champion Ensemble</span>
+            <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+              Champion Random Forest Ensemble
+            </span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mt-1">
+          <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.4px' }}>
             Automated Valuation Model (AVM)
           </h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Predict property fair market value in Marrakech based on structural dimensions, architectural typologies, and spatial distance features.
+          <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+            Instantaneous property valuation inference in Marrakech based on 45 spatial coordinates, structural features, and amenity vectors.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
+        <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '28px' }}>
           {/* Form Column */}
-          <div className="lg:col-span-7 bg-dark-card border border-gray-800/80 rounded-xl p-6">
-            <h2 className="text-base font-bold text-white mb-4 flex items-center gap-2">
-              <Calculator className="w-4 h-4 text-sky-400" />
-              Property Specifications
+          <div className="glass-panel" style={{ padding: '24px', borderRadius: '14px' }}>
+            <h2 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Calculator size={16} style={{ color: 'var(--accent-light)' }} />
+              <span>Property Parameters</span>
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
-              
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
               {/* Neighborhood & Type */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
                 <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                    Administrative District
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    District
                   </label>
                   <select
                     value={formData.neighborhood}
                     onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500"
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '8px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                      outline: 'none',
+                    }}
                   >
-                    {NEIGHBORHOODS.map(n => (
-                      <option key={n} value={n}>{n}</option>
+                    {NEIGHBORHOODS.map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
                     ))}
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                    Property Typology
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    Typology
                   </label>
                   <select
                     value={formData.property_type}
                     onChange={(e) => setFormData({ ...formData, property_type: e.target.value })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 capitalize"
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '8px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                      outline: 'none',
+                      textTransform: 'capitalize',
+                    }}
                   >
-                    {PROPERTY_TYPES.map(t => (
-                      <option key={t} value={t}>{t}</option>
+                    {PROPERTY_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               {/* Surface & Condition */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '14px' }}>
                 <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                    Total Surface Area (m²)
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    Surface Area (m²)
                   </label>
                   <input
                     type="number"
@@ -139,90 +179,134 @@ export const ValuationCalculatorPage: React.FC = () => {
                     max={5000}
                     value={formData.surface}
                     onChange={(e) => setFormData({ ...formData, surface: parseFloat(e.target.value) || 0 })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
+                    className="font-mono"
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '8px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                      outline: 'none',
+                    }}
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-300 mb-1.5">
-                    Interior Condition
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', textTransform: 'uppercase' }}>
+                    Condition
                   </label>
                   <select
                     value={formData.condition}
                     onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-sky-500 capitalize"
+                    style={{
+                      width: '100%',
+                      padding: '9px 12px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '8px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                      outline: 'none',
+                      textTransform: 'capitalize',
+                    }}
                   >
-                    {CONDITIONS.map(c => (
-                      <option key={c} value={c}>{c.replace('_', ' ')}</option>
+                    {CONDITIONS.map((c) => (
+                      <option key={c} value={c}>
+                        {c.replace('_', ' ')}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               {/* Rooms & Floor */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                 <div>
-                  <label className="block text-[11px] font-medium text-gray-400 mb-1">Bedrooms</label>
+                  <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    Bedrooms
+                  </label>
                   <input
                     type="number"
-                    min={0}
-                    max={20}
+                    min={1}
+                    max={12}
                     value={formData.bedrooms}
-                    onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
+                    onChange={(e) => setFormData({ ...formData, bedrooms: parseInt(e.target.value) || 1 })}
+                    className="font-mono"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '6px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-gray-400 mb-1">Bathrooms</label>
+                  <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    Bathrooms
+                  </label>
                   <input
                     type="number"
-                    min={0}
-                    max={15}
+                    min={1}
+                    max={10}
                     value={formData.bathrooms}
-                    onChange={(e) => setFormData({ ...formData, bathrooms: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
+                    onChange={(e) => setFormData({ ...formData, bathrooms: parseInt(e.target.value) || 1 })}
+                    className="font-mono"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '6px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                    }}
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium text-gray-400 mb-1">Floor Level</label>
-                  <input
-                    type="number"
-                    min={0}
-                    max={30}
-                    value={formData.floor}
-                    onChange={(e) => setFormData({ ...formData, floor: parseInt(e.target.value) || 0 })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-400 mb-1">Year Built</label>
+                  <label style={{ display: 'block', fontSize: '10px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                    Year Built
+                  </label>
                   <input
                     type="number"
                     min={1920}
                     max={2026}
                     value={formData.year_built}
                     onChange={(e) => setFormData({ ...formData, year_built: parseInt(e.target.value) || 2020 })}
-                    className="w-full bg-dark-surface border border-gray-800 rounded-lg px-3 py-1.5 text-sm text-white font-mono focus:outline-none focus:border-sky-500"
+                    className="font-mono"
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      backgroundColor: 'var(--bg-surface-elevated)',
+                      border: '1px solid var(--border-default)',
+                      borderRadius: '6px',
+                      color: 'var(--text-primary)',
+                      fontSize: '12px',
+                    }}
                   />
                 </div>
               </div>
 
-              {/* Amenities Checkboxes */}
+              {/* Amenities Grid */}
               <div>
-                <label className="block text-xs font-medium text-gray-300 mb-2">
-                  Structural Amenities & Inclusions
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', textTransform: 'uppercase' }}>
+                  Inclusions & Features
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
                   {[
                     { key: 'has_elevator', label: 'Elevator' },
                     { key: 'has_balcony', label: 'Balcony' },
                     { key: 'has_terrace', label: 'Terrace' },
-                    { key: 'has_garden', label: 'Private Garden' },
-                    { key: 'has_pool', label: 'Swimming Pool' },
-                    { key: 'has_parking', label: 'Covered Parking' },
-                    { key: 'has_security', label: '24/7 Security' },
-                    { key: 'has_air_conditioning', label: 'Air Conditioning' },
+                    { key: 'has_garden', label: 'Garden' },
+                    { key: 'has_pool', label: 'Pool' },
+                    { key: 'has_parking', label: 'Parking' },
+                    { key: 'has_security', label: 'Security' },
+                    { key: 'has_air_conditioning', label: 'HVAC AC' },
                     { key: 'is_furnished', label: 'Furnished' },
                   ].map((amenity) => {
                     const isChecked = !!formData[amenity.key as keyof ValuationRequest];
@@ -231,16 +315,35 @@ export const ValuationCalculatorPage: React.FC = () => {
                         type="button"
                         key={amenity.key}
                         onClick={() => handleToggle(amenity.key as keyof ValuationRequest)}
-                        className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs text-left transition-all ${
-                          isChecked
-                            ? 'bg-sky-500/10 border-sky-500/40 text-sky-300 font-medium'
-                            : 'bg-dark-surface/40 border-gray-800 text-gray-400 hover:text-gray-200'
-                        }`}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          padding: '7px 10px',
+                          borderRadius: '6px',
+                          fontSize: '11px',
+                          fontWeight: isChecked ? 600 : 500,
+                          backgroundColor: isChecked ? 'rgba(2, 132, 199, 0.2)' : 'var(--bg-surface-hover)',
+                          color: isChecked ? 'var(--accent-light)' : 'var(--text-secondary)',
+                          border: isChecked ? '1px solid var(--accent-light)' : '1px solid var(--border-subtle)',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'all 0.12s ease',
+                        }}
                       >
-                        <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border ${
-                          isChecked ? 'bg-sky-500 border-sky-500 text-white' : 'border-gray-700'
-                        }`}>
-                          {isChecked && <CheckCircle2 className="w-3 h-3" />}
+                        <div
+                          style={{
+                            width: '12px',
+                            height: '12px',
+                            borderRadius: '3px',
+                            backgroundColor: isChecked ? 'var(--accent)' : 'transparent',
+                            border: isChecked ? 'none' : '1px solid var(--border-default)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {isChecked && <CheckCircle2 size={10} color="#fff" />}
                         </div>
                         <span>{amenity.label}</span>
                       </button>
@@ -253,16 +356,32 @@ export const ValuationCalculatorPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-semibold rounded-lg text-sm flex items-center justify-center gap-2 shadow-lg shadow-sky-500/20 transition-all disabled:opacity-50"
+                style={{
+                  padding: '12px',
+                  borderRadius: '8px',
+                  backgroundColor: 'var(--accent)',
+                  color: '#ffffff',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  border: 'none',
+                  boxShadow: 'var(--shadow-md)',
+                  opacity: loading ? 0.7 : 1,
+                  transition: 'background-color 0.15s ease',
+                }}
               >
                 {loading ? (
                   <>
-                    <Sparkles className="w-4 h-4 animate-spin" />
-                    <span>Computing Spatial ML Valuation...</span>
+                    <Sparkles size={16} className="animate-spin" />
+                    <span>Executing ML Inference Pipeline...</span>
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles size={16} />
                     <span>Estimate Fair Market Value</span>
                   </>
                 )}
@@ -270,53 +389,88 @@ export const ValuationCalculatorPage: React.FC = () => {
             </form>
           </div>
 
-          {/* Result Column */}
-          <div className="lg:col-span-5 flex flex-col gap-6">
+          {/* Results Column */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {error && (
-              <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-xl text-rose-400 text-xs flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
+              <div
+                className="glass-panel"
+                style={{
+                  padding: '14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--danger)',
+                  color: 'var(--danger)',
+                  fontSize: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <AlertCircle size={16} />
                 <span>{error}</span>
               </div>
             )}
 
             {result ? (
-              <div className="bg-dark-card border border-gray-800/80 rounded-xl p-6 space-y-6">
+              <div className="glass-panel" style={{ padding: '24px', borderRadius: '14px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        fontSize: '10px',
+                        fontFamily: 'monospace',
+                        backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                        color: 'var(--success)',
+                        border: '1px solid var(--success)',
+                        fontWeight: 700,
+                      }}
+                    >
                       Model Estimate
                     </span>
-                    <span className="text-[11px] text-gray-500 font-mono">Confidence 90%</span>
+                    <span className="font-mono" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                      90% Confidence Interval
+                    </span>
                   </div>
-                  <div className="text-3xl font-extrabold text-white font-mono mt-1">
-                    {result.predicted_price.toLocaleString()} <span className="text-sm text-gray-400 font-normal">MAD</span>
+                  <div className="font-mono" style={{ fontSize: '28px', fontWeight: 800, color: 'var(--accent-light)', marginTop: '4px' }}>
+                    {result.predicted_price.toLocaleString()}{' '}
+                    <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>MAD</span>
                   </div>
-                  <div className="text-xs text-gray-400 mt-1 flex items-center gap-2">
-                    <span>≈ {Math.round(result.predicted_price / 10.8).toLocaleString()} €</span>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span className="font-mono">≈ {Math.round(result.predicted_price / 10.8).toLocaleString()} €</span>
                     <span>•</span>
-                    <span className="text-emerald-400 font-mono font-medium">
+                    <span className="font-mono" style={{ color: 'var(--success)', fontWeight: 600 }}>
                       {result.price_per_m2.toLocaleString()} MAD/m²
                     </span>
                   </div>
                 </div>
 
                 {/* Range Card */}
-                <div className="p-4 bg-dark-surface/60 rounded-xl border border-gray-800">
-                  <div className="text-xs font-semibold text-gray-300 mb-2 flex items-center justify-between">
-                    <span>Estimated Valuation Range</span>
-                    <span className="text-[10px] text-gray-500 font-mono">±10% Bounds</span>
+                <div
+                  style={{
+                    padding: '14px',
+                    borderRadius: '10px',
+                    backgroundColor: 'var(--bg-surface-card)',
+                    border: '1px solid var(--border-subtle)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
+                    <span>Valuation Bounds</span>
+                    <span className="font-mono" style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+                      ±10% Tolerance
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between text-xs font-mono">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
                     <div>
-                      <div className="text-gray-500 text-[10px]">Conservative</div>
-                      <div className="text-gray-300 font-medium">
+                      <div style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Conservative</div>
+                      <div className="font-mono" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
                         {(result.price_range.low / 1_000_000).toFixed(2)}M MAD
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-gray-600" />
-                    <div className="text-right">
-                      <div className="text-gray-500 text-[10px]">Optimistic</div>
-                      <div className="text-gray-300 font-medium">
+                    <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} />
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '9px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Optimistic</div>
+                      <div className="font-mono" style={{ fontWeight: 700, color: 'var(--text-primary)' }}>
                         {(result.price_range.high / 1_000_000).toFixed(2)}M MAD
                       </div>
                     </div>
@@ -326,26 +480,32 @@ export const ValuationCalculatorPage: React.FC = () => {
                 {/* Feature Contributions */}
                 {result.feature_contributions && (
                   <div>
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                      <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
-                      Key Valuation Drivers
+                    <h3 style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-muted)', letterSpacing: '0.5px', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <TrendingUp size={13} style={{ color: 'var(--accent-light)' }} />
+                      <span>Key Valuation Drivers</span>
                     </h3>
-                    <div className="space-y-2.5">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {Object.entries(result.feature_contributions).map(([feature, weight]: [string, any]) => {
                         const pct = Math.min(Math.abs(weight) * 150, 100);
                         const isPositive = weight >= 0;
                         return (
-                          <div key={feature} className="text-xs">
-                            <div className="flex justify-between text-gray-300 mb-1">
-                              <span className="capitalize">{feature.replace('_', ' ')}</span>
-                              <span className={`font-mono ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          <div key={feature}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
+                              <span style={{ textTransform: 'capitalize', color: 'var(--text-secondary)' }}>
+                                {feature.replace('_', ' ')}
+                              </span>
+                              <span className="font-mono" style={{ color: isPositive ? 'var(--success)' : 'var(--danger)', fontWeight: 600 }}>
                                 {isPositive ? '+' : ''}{(weight * 100).toFixed(1)}%
                               </span>
                             </div>
-                            <div className="w-full h-1.5 bg-dark-surface rounded-full overflow-hidden">
+                            <div style={{ width: '100%', height: '5px', backgroundColor: 'var(--bg-surface-hover)', borderRadius: '999px', overflow: 'hidden' }}>
                               <div
-                                className={`h-full rounded-full ${isPositive ? 'bg-emerald-500' : 'bg-rose-500'}`}
-                                style={{ width: `${pct}%` }}
+                                style={{
+                                  height: '100%',
+                                  borderRadius: '999px',
+                                  backgroundColor: isPositive ? 'var(--success)' : 'var(--danger)',
+                                  width: `${pct}%`,
+                                }}
                               />
                             </div>
                           </div>
@@ -355,28 +515,53 @@ export const ValuationCalculatorPage: React.FC = () => {
                   </div>
                 )}
 
-                <div className="pt-4 border-t border-gray-800 text-[11px] text-gray-500 flex items-start gap-2">
-                  <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+                <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '14px', fontSize: '10px', color: 'var(--text-muted)', display: 'flex', gap: '8px' }}>
+                  <ShieldCheck size={14} style={{ color: 'var(--accent-light)', flexShrink: 0 }} />
                   <span>
-                    Valuation output is strictly indicative based on historical transaction & listing benchmarks. Professional appraisal recommended prior to financial commitments.
+                    Indicative valuation benchmark computed by the spatial ML pipeline. Professional appraisal is recommended prior to formal contracting.
                   </span>
                 </div>
               </div>
             ) : (
-              <div className="bg-dark-card border border-gray-800/80 rounded-xl p-8 flex flex-col items-center justify-center text-center h-full min-h-[350px]">
-                <div className="w-14 h-14 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center mb-4">
-                  <Sparkles className="w-7 h-7" />
+              <div
+                className="glass-panel"
+                style={{
+                  padding: '32px',
+                  borderRadius: '14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  minHeight: '380px',
+                  border: '1px dashed var(--border-default)',
+                }}
+              >
+                <div
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '12px',
+                    backgroundColor: 'rgba(2, 132, 199, 0.15)',
+                    color: 'var(--accent-light)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: '14px',
+                  }}
+                >
+                  <Sparkles size={24} />
                 </div>
-                <h3 className="text-base font-bold text-white mb-1">Awaiting Specifications</h3>
-                <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
-                  Fill out the property specifications on the left and submit to trigger model inference across 45 spatial and structural features.
+                <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                  Awaiting Property Parameters
+                </h3>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', maxWidth: '280px', lineHeight: 1.5 }}>
+                  Configure the property parameters on the left and submit to trigger ML feature inference and confidence bounds estimation.
                 </p>
               </div>
             )}
           </div>
-
         </div>
-
       </div>
     </div>
   );
